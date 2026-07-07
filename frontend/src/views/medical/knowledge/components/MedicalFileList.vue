@@ -91,11 +91,12 @@
       @saved="handleSaved"
     />
 
-    <!-- 文件详情（点击详情打开） -->
+    <!-- 文件详情 -->
     <MedicalFileDetail
       v-if="detailVisible"
       v-model="detailVisible"
       :knowledge-id="detailKnowledgeId"
+      :kb-id="documentKbId"
     />
   </div>
 </template>
