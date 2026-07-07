@@ -3,6 +3,7 @@ export default {
     knowledgeBase: 'Knowledge Base',
     agents: 'Agents',
     organizations: 'Shared Spaces',
+    medicalKB: 'Medical KB',
     chat: 'Chat',
     newChat: 'New Chat',
     createChat: 'Create Chat',

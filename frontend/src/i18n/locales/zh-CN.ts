@@ -3,6 +3,7 @@ export default {
     knowledgeBase: "知识库",
     agents: "智能体",
     organizations: "共享空间",
+    medicalKB: "知识库管理",
     chat: "对话",
     newChat: "新对话",
     createChat: "创建对话",
