@@ -151,6 +151,12 @@ const router = createRouter({
           component: () => import("../views/organization/OrganizationList.vue"),
           meta: { requiresInit: true, requiresAuth: true }
         },
+        {
+          path: "medical/departments",
+          name: "medicalDepartments",
+          component: () => import("../views/medical/department/DepartmentList.vue"),
+          meta: { requiresInit: true, requiresAuth: true }
+        },
         // Compatibility redirects for legacy /platform/system/* URLs.
         // The whole system administration surface — global settings
         // and the system-admin roster — now lives as a single section

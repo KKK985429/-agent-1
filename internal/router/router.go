@@ -81,6 +81,7 @@ type RouterParams struct {
 	DataSourceCredentialsHandler *handler.DataSourceCredentialsHandler
 	WeKnoraCloudHandler          *handler.WeKnoraCloudHandler
 	WikiPageHandler              *handler.WikiPageHandler
+	MedicalDepartmentHandler     *handler.MedicalDepartmentHandler
 }
 
 // NewRouter 创建新的路由
@@ -202,6 +203,7 @@ func NewRouter(params RouterParams) *gin.Engine {
 		RegisterDataSourceRoutes(v1, params.DataSourceHandler, params.DataSourceCredentialsHandler, rbacGuards)
 		RegisterWeKnoraCloudRoutes(v1, params.WeKnoraCloudHandler, rbacGuards)
 		RegisterWikiPageRoutes(v1, params.WikiPageHandler, rbacGuards)
+		RegisterMedicalDepartmentRoutes(v1, params.MedicalDepartmentHandler, rbacGuards)
 		RegisterChunkerDebugRoutes(v1, rbacGuards)
 	}
 
@@ -1597,5 +1599,25 @@ func RegisterWikiPageRoutes(r *gin.RouterGroup, wikiHandler *handler.WikiPageHan
 		// Issues
 		wiki.GET("/issues", g.Viewer(), wikiHandler.ListIssues)
 		wiki.PUT("/issues/:issue_id/status", g.OwnedWikiKBOrAdmin(), wikiHandler.UpdateIssueStatus)
+	}
+}
+
+// RegisterMedicalDepartmentRoutes registers medical department management routes.
+//
+// Departments are tenant-scoped records with no knowledge-base dependency.
+// Read access: Viewer+, Write access: Contributor+ — matching the existing
+// convention for independent tenant resources.
+func RegisterMedicalDepartmentRoutes(r *gin.RouterGroup, handler *handler.MedicalDepartmentHandler, g *rbacGuards) {
+	if handler == nil {
+		return
+	}
+	medical := r.Group("/medical")
+	{
+		medical.GET("/departments", g.Viewer(), handler.ListDepartments)
+		medical.GET("/departments/:id", g.Viewer(), handler.GetDepartment)
+		medical.POST("/departments", g.Contributor(), handler.CreateDepartment)
+		medical.PUT("/departments/:id", g.Contributor(), handler.UpdateDepartment)
+		medical.DELETE("/departments/:id", g.Contributor(), handler.DeleteDepartment)
+		medical.GET("/hospital-areas", g.Viewer(), handler.ListHospitalAreas)
 	}
 }
