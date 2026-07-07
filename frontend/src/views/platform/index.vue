@@ -178,7 +178,12 @@ const handleGlobalDrop = async (event: DragEvent) => {
         }));
         return;
     }
-    
+
+    // 医疗知识库页面自行管理文件上传，跳过 KB 初始化检查
+    if (String(route.name || '').startsWith('medical')) {
+        return;
+    }
+
     const isInitialized = await checkKnowledgeBaseInitialization();
     if (!isInitialized) {
         return;

@@ -82,6 +82,7 @@ type RouterParams struct {
 	WeKnoraCloudHandler          *handler.WeKnoraCloudHandler
 	WikiPageHandler              *handler.WikiPageHandler
 	MedicalDepartmentHandler     *handler.MedicalDepartmentHandler
+	MedicalKBConfigHandler       *handler.MedicalKBConfigHandler
 }
 
 // NewRouter 创建新的路由
@@ -204,6 +205,7 @@ func NewRouter(params RouterParams) *gin.Engine {
 		RegisterWeKnoraCloudRoutes(v1, params.WeKnoraCloudHandler, rbacGuards)
 		RegisterWikiPageRoutes(v1, params.WikiPageHandler, rbacGuards)
 		RegisterMedicalDepartmentRoutes(v1, params.MedicalDepartmentHandler, rbacGuards)
+		RegisterMedicalKBConfigRoutes(v1, params.MedicalKBConfigHandler, rbacGuards)
 		RegisterChunkerDebugRoutes(v1, rbacGuards)
 	}
 
@@ -1619,5 +1621,17 @@ func RegisterMedicalDepartmentRoutes(r *gin.RouterGroup, handler *handler.Medica
 		medical.PUT("/departments/:id", g.Contributor(), handler.UpdateDepartment)
 		medical.DELETE("/departments/:id", g.Contributor(), handler.DeleteDepartment)
 		medical.GET("/hospital-areas", g.Viewer(), handler.ListHospitalAreas)
+	}
+}
+
+// RegisterMedicalKBConfigRoutes registers the medical knowledge base config route.
+// Viewer+ access — any authenticated tenant member can fetch the config.
+func RegisterMedicalKBConfigRoutes(r *gin.RouterGroup, handler *handler.MedicalKBConfigHandler, g *rbacGuards) {
+	if handler == nil {
+		return
+	}
+	medical := r.Group("/medical")
+	{
+		medical.GET("/knowledge-base-config", g.Viewer(), handler.GetOrCreateConfig)
 	}
 }

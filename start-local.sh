@@ -71,6 +71,7 @@ GIN_MODE=debug \
 TZ=Asia/Shanghai \
 WEKNORA_LANGUAGE=zh-CN \
 AUTO_RECOVER_DIRTY=true \
+SSRF_WHITELIST_EXTRA=172.16.1.250,searxng,qdrant,milvus,weaviate,doris-fe \
 nohup "$PROJECT_DIR/WeKnora" > "$LOG_DIR/backend.log" 2>&1 &
 
 echo "  → 后端 PID: $!"
