@@ -4,13 +4,13 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/Tencent/WeKnora/internal/errors"
 	"github.com/Tencent/WeKnora/internal/logger"
 	"github.com/Tencent/WeKnora/internal/types"
 	"github.com/Tencent/WeKnora/internal/types/interfaces"
 )
 
 // hospitalAreas is the configured list of hospital campuses/areas.
-// In the future this could be replaced by a database table or system settings.
 var hospitalAreas = []interfaces.HospitalAreaOption{
 	{Label: "中心院区", Value: "中心院区"},
 	{Label: "东院区", Value: "东院区"},
@@ -19,12 +19,10 @@ var hospitalAreas = []interfaces.HospitalAreaOption{
 	{Label: "南院区", Value: "南院区"},
 }
 
-// medicalDepartmentService implements MedicalDepartmentService.
 type medicalDepartmentService struct {
 	repo interfaces.MedicalDepartmentRepository
 }
 
-// NewMedicalDepartmentService creates a new medical department service.
 func NewMedicalDepartmentService(repo interfaces.MedicalDepartmentRepository) interfaces.MedicalDepartmentService {
 	return &medicalDepartmentService{repo: repo}
 }
@@ -34,7 +32,7 @@ func getTenantID(ctx context.Context) (uint64, error) {
 	tenantID, ok := types.TenantIDFromContext(ctx)
 	if !ok {
 		logger.Warnf(ctx, "[MedicalDepartment] Tenant ID not found in context")
-		return 0, fmt.Errorf("无法获取租户信息，请确认登录状态")
+		return 0, errors.NewUnauthorizedError("无法获取租户信息，请确认登录状态")
 	}
 	return tenantID, nil
 }
@@ -50,24 +48,24 @@ func (s *medicalDepartmentService) CreateDepartment(
 		return nil, err
 	}
 
-	// Validate required fields
+	// Validate required fields → 400 Bad Request
 	if req.Name == "" {
-		return nil, fmt.Errorf("科室名称不能为空")
+		return nil, errors.NewBadRequestError("科室名称不能为空")
 	}
 	if req.Code == "" {
-		return nil, fmt.Errorf("科室编号不能为空")
+		return nil, errors.NewBadRequestError("科室编号不能为空")
 	}
 	if req.HospitalArea == "" {
-		return nil, fmt.Errorf("院区不能为空")
+		return nil, errors.NewBadRequestError("院区不能为空")
 	}
 
-	// Check code uniqueness
+	// Check code uniqueness → 409 Conflict
 	exists, err := s.repo.ExistsByCode(ctx, tenantID, req.Code, "")
 	if err != nil {
 		return nil, fmt.Errorf("检查科室编号失败: %w", err)
 	}
 	if exists {
-		return nil, fmt.Errorf("科室编号 %s 已存在", req.Code)
+		return nil, errors.NewConflictError(fmt.Sprintf("科室编号 %s 已存在", req.Code))
 	}
 
 	enabled := true
@@ -103,7 +101,7 @@ func (s *medicalDepartmentService) GetDepartment(
 
 	dept, err := s.repo.GetByID(ctx, tenantID, id)
 	if err != nil {
-		return nil, fmt.Errorf("科室不存在: %w", err)
+		return nil, errors.NewNotFoundError("科室不存在")
 	}
 
 	return s.toResponse(dept, ""), nil
@@ -159,32 +157,31 @@ func (s *medicalDepartmentService) UpdateDepartment(
 
 	dept, err := s.repo.GetByID(ctx, tenantID, id)
 	if err != nil {
-		return nil, fmt.Errorf("科室不存在: %w", err)
+		return nil, errors.NewNotFoundError("科室不存在")
 	}
 
 	if req.Name != nil {
 		if *req.Name == "" {
-			return nil, fmt.Errorf("科室名称不能为空")
+			return nil, errors.NewBadRequestError("科室名称不能为空")
 		}
 		dept.Name = *req.Name
 	}
 	if req.Code != nil {
 		if *req.Code == "" {
-			return nil, fmt.Errorf("科室编号不能为空")
+			return nil, errors.NewBadRequestError("科室编号不能为空")
 		}
-		// Check uniqueness (exclude current department from check)
 		exists, err := s.repo.ExistsByCode(ctx, tenantID, *req.Code, id)
 		if err != nil {
 			return nil, fmt.Errorf("检查科室编号失败: %w", err)
 		}
 		if exists {
-			return nil, fmt.Errorf("科室编号 %s 已存在", *req.Code)
+			return nil, errors.NewConflictError(fmt.Sprintf("科室编号 %s 已存在", *req.Code))
 		}
 		dept.Code = *req.Code
 	}
 	if req.HospitalArea != nil {
 		if *req.HospitalArea == "" {
-			return nil, fmt.Errorf("院区不能为空")
+			return nil, errors.NewBadRequestError("院区不能为空")
 		}
 		dept.HospitalArea = *req.HospitalArea
 	}
@@ -209,12 +206,10 @@ func (s *medicalDepartmentService) DeleteDepartment(
 		return err
 	}
 
-	// Verify the department exists before deleting
 	if _, err := s.repo.GetByID(ctx, tenantID, id); err != nil {
-		return fmt.Errorf("科室不存在: %w", err)
+		return errors.NewNotFoundError("科室不存在")
 	}
 
-	// GORM soft delete: sets deleted_at on the model
 	return s.repo.Delete(ctx, tenantID, id)
 }
 
