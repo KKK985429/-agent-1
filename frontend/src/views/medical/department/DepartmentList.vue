@@ -62,10 +62,23 @@
       </div>
     </div>
 
-    <!-- 占位提示：其他知识库卡片（症状/疾病/药品）暂未实现 -->
-    <div v-if="activeCard !== 'department'" class="placeholder-section">
-      <t-icon name="build" size="48px" style="color: var(--td-text-color-placeholder)" />
-      <p class="placeholder-text">该知识库模块正在开发中</p>
+    <!-- 非科室知识库 → 医疗知识库内容（文件 / Q&A） -->
+    <div v-if="activeCard !== 'department'" class="medical-kb-section">
+      <!-- 加载中 -->
+      <div v-if="kbConfigLoading" class="loading-section">
+        <t-loading text="正在加载知识库配置..." />
+      </div>
+      <!-- 非科室知识库内容 -->
+      <MedicalKBContent
+        v-else-if="currentKBConfig"
+        ref="kbContentRef"
+        :config-item="currentKBConfig"
+      />
+      <!-- 配置获取失败 -->
+      <div v-else class="placeholder-section">
+        <t-icon name="error-circle" size="48px" style="color: var(--td-error-color)" />
+        <p class="placeholder-text">知识库配置加载失败，请确认已配置默认模型</p>
+      </div>
     </div>
 
     <!-- 科室列表表格 -->
@@ -122,7 +135,12 @@ import {
   updateDepartment,
   type MedicalDepartment,
 } from '@/api/medical/department/index'
+import {
+  getMedicalKBConfig,
+  type MedicalKBConfigItem,
+} from '@/api/medical/knowledge-base/index'
 import DepartmentFormDialog from './DepartmentFormDialog.vue'
+import MedicalKBContent from '../knowledge/MedicalKBContent.vue'
 
 // ---------- 知识库卡片 ----------
 interface KBCard {
@@ -138,12 +156,53 @@ const kbCards = ref<KBCard[]>([
   { key: 'symptom', icon: '💊', title: '症状知识库', latestTime: '' },
   { key: 'disease', icon: '🩺', title: '疾病知识库', latestTime: '' },
   { key: 'drug', icon: '💉', title: '药品知识库', latestTime: '' },
+  { key: 'lab', icon: '🔬', title: '检验检查知识库', latestTime: '' },
 ])
 
-function handleCardClick(key: string) {
+// ---------- 医疗知识库配置 ----------
+const kbConfigCache = ref<MedicalKBConfigItem[]>([])
+const kbConfigLoading = ref(false)
+const currentKBConfig = ref<MedicalKBConfigItem | null>(null)
+const kbContentRef = ref()
+
+async function handleCardClick(key: string) {
   activeCard.value = key
   if (key === 'department') {
+    currentKBConfig.value = null
     fetchData()
+  } else {
+    await loadKBConfig(key)
+  }
+}
+
+async function loadKBConfig(category: string) {
+  // 优先用缓存
+  if (kbConfigCache.value.length > 0) {
+    const cached = kbConfigCache.value.find((i) => i.key === category)
+    if (cached) {
+      currentKBConfig.value = cached
+      return
+    }
+  }
+
+  kbConfigLoading.value = true
+  currentKBConfig.value = null
+  try {
+    const res = await getMedicalKBConfig()
+    if (res.success && res.data?.items) {
+      kbConfigCache.value = res.data.items
+      const item = (res.data.items as MedicalKBConfigItem[]).find(
+        (i) => i.key === category,
+      )
+      if (item) {
+        currentKBConfig.value = item
+      }
+    }
+  } catch (err: any) {
+    const msg = err?.response?.data?.message || err?.message || '加载知识库配置失败'
+    MessagePlugin.error(msg)
+  } finally {
+    kbConfigLoading.value = false
   }
 }
 
@@ -278,6 +337,8 @@ onMounted(() => {
   padding: 24px;
   max-width: 1200px;
   margin: 0 auto;
+  height: 100%;
+  overflow-y: auto;
 }
 
 .header {
@@ -300,7 +361,7 @@ onMounted(() => {
 // ---- 卡片 ----
 .kb-cards {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(5, 1fr);
   gap: 16px;
   margin-bottom: 24px;
 }
@@ -377,6 +438,19 @@ onMounted(() => {
   background: var(--td-bg-color-container);
   border-radius: 8px;
   padding: 0;
+}
+
+// ---- 医疗知识库内容 ----
+.medical-kb-section {
+  min-height: 300px;
+  overflow: visible;
+}
+
+.loading-section {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 0;
 }
 
 // ---- 占位提示 ----

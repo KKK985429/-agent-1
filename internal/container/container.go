@@ -165,6 +165,7 @@ func BuildContainer(container *dig.Container) *dig.Container {
 	must(container.Provide(repository.NewWikiPageRepository))
 	must(container.Provide(repository.NewWikiLogEntryRepository))
 	must(container.Provide(repository.NewMedicalDepartmentRepository))
+	must(container.Provide(repository.NewMedicalKnowledgeBaseConfigRepository))
 	must(container.Provide(repository.NewTaskPendingOpsRepository))
 	must(container.Provide(repository.NewTaskDeadLetterRepository))
 
@@ -212,6 +213,7 @@ func BuildContainer(container *dig.Container) *dig.Container {
 	must(container.Provide(service.NewWikiIngestService, dig.Name("wikiIngest")))
 	must(container.Provide(service.NewWikiLintService))
 	must(container.Provide(service.NewMedicalDepartmentService))
+	must(container.Provide(service.NewMedicalKnowledgeBaseConfigService))
 
 	// Web search service (needed by AgentService)
 	logger.Debugf(ctx, "[Container] Registering web search registry and providers...")
@@ -342,6 +344,7 @@ func BuildContainer(container *dig.Container) *dig.Container {
 	// Wiki page handler
 	must(container.Provide(handler.NewWikiPageHandler))
 	must(container.Provide(handler.NewMedicalDepartmentHandler))
+	must(container.Provide(handler.NewMedicalKBConfigHandler))
 	// IM integration
 	logger.Debugf(ctx, "[Container] Registering IM integration...")
 	must(container.Provide(imPkg.NewService))
