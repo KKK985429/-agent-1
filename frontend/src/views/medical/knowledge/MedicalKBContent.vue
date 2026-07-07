@@ -23,10 +23,19 @@
       </div>
     </div>
 
-    <!-- 文件 Tab (暂未实现，显示占位) -->
-    <div v-if="activeTab === 'file'" class="tab-panel placeholder-section">
-      <t-icon name="build" size="48px" style="color: var(--td-text-color-placeholder)" />
-      <p class="placeholder-text">文件管理功能正在开发中</p>
+    <!-- 文件 Tab -->
+    <div v-if="activeTab === 'file'" class="tab-panel">
+      <MedicalFileList
+        v-if="configItem?.document_kb_id"
+        :key="configItem.key + '-file'"
+        ref="fileListRef"
+        :document-kb-id="configItem.document_kb_id"
+        :category="configItem.key"
+      />
+      <div v-else class="empty-config">
+        <t-icon name="info-circle" size="32px" />
+        <p>该知识库尚未配置，请先配置底层知识库</p>
+      </div>
     </div>
   </div>
 </template>
@@ -35,6 +44,7 @@
 import { ref } from 'vue'
 import type { MedicalKBConfigItem } from '@/api/medical/knowledge-base/index'
 import MedicalFAQList from './components/MedicalFAQList.vue'
+import MedicalFileList from './components/MedicalFileList.vue'
 
 defineProps<{
   configItem: MedicalKBConfigItem | null
@@ -42,6 +52,7 @@ defineProps<{
 
 const activeTab = ref('qa')
 const faqListRef = ref()
+const fileListRef = ref()
 
 function handleTabChange() {
   // Tab 切换时不做特殊处理，组件内部自己管理状态
@@ -51,6 +62,7 @@ function handleTabChange() {
 defineExpose({
   reload() {
     faqListRef.value?.fetchData()
+    fileListRef.value?.fetchData()
   },
 })
 </script>

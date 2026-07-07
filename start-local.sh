@@ -63,7 +63,7 @@ DB_PASSWORD='postgres123!@#' \
 DB_NAME=WeKnora \
 RETRIEVE_DRIVER=postgres \
 STORAGE_TYPE=local \
-LOCAL_STORAGE_BASE_DIR=/data/files \
+LOCAL_STORAGE_BASE_DIR=/tmp/weknora-files \
 TENANT_AES_KEY=weknorarag-api-key-secret-secret \
 SYSTEM_AES_KEY=weknora-system-aes-key-32bytes!! \
 JWT_SECRET=weknora-jwt-secret \
@@ -71,6 +71,8 @@ GIN_MODE=debug \
 TZ=Asia/Shanghai \
 WEKNORA_LANGUAGE=zh-CN \
 AUTO_RECOVER_DIRTY=true \
+	DOCREADER_ADDR=localhost:50051 \
+	DOCREADER_TRANSPORT=grpc \
 SSRF_WHITELIST_EXTRA=172.16.1.250,searxng,qdrant,milvus,weaviate,doris-fe \
 nohup "$PROJECT_DIR/WeKnora" > "$LOG_DIR/backend.log" 2>&1 &
 

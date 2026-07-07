@@ -137,6 +137,8 @@ const checkKnowledgeBaseInitialization = async (): Promise<boolean> => {
 
 // 全局拖拽事件处理
 const handleGlobalDragEnter = (event: DragEvent) => {
+    // 医疗知识库页面自行管理文件拖拽，不显示全局遮罩
+    if (String(route.name || '').startsWith('medical')) return
     event.preventDefault();
     dragCounter++;
     if (event.dataTransfer) {
@@ -146,6 +148,7 @@ const handleGlobalDragEnter = (event: DragEvent) => {
 }
 
 const handleGlobalDragOver = (event: DragEvent) => {
+    if (String(route.name || '').startsWith('medical')) return
     event.preventDefault();
     if (event.dataTransfer) {
         event.dataTransfer.dropEffect = 'copy';
@@ -153,6 +156,7 @@ const handleGlobalDragOver = (event: DragEvent) => {
 }
 
 const handleGlobalDragLeave = (event: DragEvent) => {
+    if (String(route.name || '').startsWith('medical')) return
     event.preventDefault();
     dragCounter--;
     if (dragCounter === 0) {
