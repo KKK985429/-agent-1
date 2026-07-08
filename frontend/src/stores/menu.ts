@@ -30,6 +30,7 @@ export const useMenuStore = defineStore('menuStore', () => {
     { title: '', titleKey: 'menu.agents', icon: 'agent', path: 'agents' },
     { title: '', titleKey: 'menu.organizations', icon: 'organization', path: 'organizations' },
     { title: '', titleKey: 'menu.medicalKB', icon: 'zhishiku', path: 'medical/departments' },
+    { title: '', titleKey: 'menu.medicalKB', icon: 'search', path: 'medical/search' },
     { title: '', titleKey: 'menu.settings', icon: 'setting', path: 'settings' },
     { title: '', titleKey: 'menu.logout', icon: 'logout', path: 'logout' }
   ])
