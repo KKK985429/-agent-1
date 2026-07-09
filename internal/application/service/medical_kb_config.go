@@ -85,6 +85,7 @@ func (s *medicalKBConfigService) createDocumentKB(
 		EmbeddingModelID: embeddingModelID,
 	}
 	kb.EnsureDefaults()
+	kb.IndexingStrategy.WikiEnabled = true // 开启 Wiki：上传文档后自动生成结构化百科页面
 
 	logger.Infof(ctx, "[MedicalKBConfig] Creating document KB for %s (tenant=%d)", category, tenantID)
 	created, err := s.kbSvc.CreateKnowledgeBase(ctx, kb)
