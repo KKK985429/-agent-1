@@ -56,10 +56,12 @@
       </template>
       <template #operation="{ row }">
         <t-space size="small">
-          <t-link theme="primary" hover="color" @click="openDetail(row)">详情</t-link>
-          <t-popconfirm content="确认删除？" @confirm="handleDelete(row)">
+          <t-link v-if="!isDeleting(row.status)" theme="primary" hover="color" @click="openDetail(row)">详情</t-link>
+          <t-link v-else theme="default" disabled>详情</t-link>
+          <t-popconfirm v-if="!isDeleting(row.status)" content="确认删除？" @confirm="handleDelete(row)">
             <t-link theme="danger" hover="color">删除</t-link>
           </t-popconfirm>
+          <t-link v-else theme="default" disabled>删除中</t-link>
         </t-space>
       </template>
     </t-table>
@@ -79,7 +81,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed, onMounted, watch } from 'vue'
+import { ref, reactive, computed, onMounted, onBeforeUnmount, watch } from 'vue'
 import { MessagePlugin } from 'tdesign-vue-next'
 import { useAuthStore } from '@/stores/auth'
 import type { MedicalKBConfigItem } from '@/api/medical/knowledge-base/index'
@@ -122,6 +124,8 @@ interface UnifiedItem {
   source: 'file' | 'qa'
 }
 const tableData = ref<UnifiedItem[]>([])
+const pendingDeletingIds = ref(new Set<string>())
+let deletePollTimer: ReturnType<typeof setTimeout> | null = null
 
 const columns = [
   { colKey: 'name', title: '名称', width: 240, ellipsis: true },
@@ -162,13 +166,35 @@ function statusTheme(s: string) {
   if (s==='completed'||s==='success') return 'success'
   if (s==='processing'||s==='pending') return 'warning'
   if (s==='failed') return 'danger'
+  if (s==='deleting') return 'warning'
   return 'default'
 }
 function statusText(s: string) {
   if (s==='completed'||s==='success') return '处理成功'
   if (s==='processing'||s==='pending'||s==='finalizing') return '处理中'
   if (s==='failed'||s==='cancelled') return '处理失败'
+  if (s==='deleting') return '删除中'
   return s || '未知'
+}
+function isDeleting(s: string) { return s === 'deleting' }
+function isProcessingStatus(s: string) {
+  return s === 'pending' || s === 'processing' || s === 'finalizing' || s === 'deleting'
+}
+function normalizeFAQStatus(entry: any) {
+  return entry?.parse_status || entry?.status || 'completed'
+}
+
+function markRowDeleting(row: UnifiedItem) {
+  pendingDeletingIds.value.add(row.uid)
+  tableData.value = tableData.value.map(item => item.uid === row.uid ? { ...item, status: 'deleting' } : item)
+}
+
+function scheduleDeletePoll() {
+  if (deletePollTimer || pendingDeletingIds.value.size === 0) return
+  deletePollTimer = setTimeout(() => {
+    deletePollTimer = null
+    fetchData()
+  }, 2000)
 }
 
 // ── 类型标签 ──
@@ -212,8 +238,9 @@ async function handleDelete(row: UnifiedItem) {
     } else {
       await deleteFAQEntries(props.configItem!.faq_kb_id, [row.raw.id])
     }
-    MessagePlugin.success('删除成功')
-    fetchData()
+    markRowDeleting(row)
+    MessagePlugin.success('删除任务已提交')
+    scheduleDeletePoll()
   } catch(e:any) { MessagePlugin.error(e?.message||'删除失败') }
 }
 
@@ -256,7 +283,7 @@ async function fetchData() {
           all.push({
             uid: 'qa-'+q.id, name: q.standard_question||'', hitCount: 0,
             type: 'qa', typeLabel: 'Q&A',
-            status: q.is_enabled ? 'success' : 'failed',
+            status: normalizeFAQStatus(q),
             updatedBy: userName.value||'-', updatedAt: formatDateTime(q.updated_at),
             createdBy: userName.value||'-', createdAt: formatDateTime(q.created_at),
             raw: q, source: 'qa',
@@ -267,7 +294,12 @@ async function fetchData() {
   } catch(e) { console.error(e) }
 
   // 前端筛选
-  let filtered = all
+  const existingUIDs = new Set(all.map(item => item.uid))
+  pendingDeletingIds.value.forEach(uid => {
+    if (!existingUIDs.has(uid)) pendingDeletingIds.value.delete(uid)
+  })
+
+  let filtered = all.map(item => pendingDeletingIds.value.has(item.uid) ? { ...item, status: 'deleting' } : item)
   if (filterType.value) {
     const ft = filterType.value === 'Q&A' ? 'qa' : filterType.value.toLowerCase()
     filtered = filtered.filter(i => i.type === ft)
@@ -275,8 +307,8 @@ async function fetchData() {
   if (filterStatus.value) {
     const fs = filterStatus.value
     filtered = filtered.filter(i => {
-      if (i.source === 'file') return i.status === fs
-      return (fs==='completed' && i.status==='success') || (fs==='failed' && i.status==='failed') || (fs==='processing' && i.status==='pending')
+      if (i.source === 'file') return fs === 'processing' ? isProcessingStatus(i.status) : i.status === fs
+      return (fs==='completed' && (i.status==='completed' || i.status==='success')) || (fs==='failed' && i.status==='failed') || (fs==='processing' && isProcessingStatus(i.status))
     })
   }
   if (filterEnabled.value) {
@@ -292,6 +324,7 @@ async function fetchData() {
   const start = (pagination.current-1)*pagination.pageSize
   tableData.value = filtered.slice(start, start+pagination.pageSize)
   loading.value = false
+  scheduleDeletePoll()
 }
 
 // 卡片切换时重新加载
@@ -302,6 +335,9 @@ watch(() => props.configItem, () => {
   }
 })
 onMounted(() => { fetchData() })
+onBeforeUnmount(() => {
+  if (deletePollTimer) clearTimeout(deletePollTimer)
+})
 defineExpose({ reload: fetchData })
 </script>
 
