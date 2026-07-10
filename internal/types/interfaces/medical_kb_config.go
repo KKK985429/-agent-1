@@ -2,6 +2,7 @@ package interfaces
 
 import (
 	"context"
+	"time"
 
 	"github.com/Tencent/WeKnora/internal/types"
 )
@@ -15,6 +16,9 @@ type MedicalKnowledgeBaseConfigRepository interface {
 	ListByTenant(ctx context.Context, tenantID uint64) ([]*types.MedicalKnowledgeBaseConfig, error)
 	// Upsert inserts or updates a config row (on conflict tenant_id + category).
 	Upsert(ctx context.Context, config *types.MedicalKnowledgeBaseConfig) error
+	// GetLatestContentUpdatedAt returns the latest content update time across
+	// the document KB's knowledges and FAQ KB's FAQ chunks.
+	GetLatestContentUpdatedAt(ctx context.Context, tenantID uint64, documentKBID, faqKBID string) (*time.Time, error)
 }
 
 // MedicalKnowledgeBaseConfigService defines business logic for medical KB configs.

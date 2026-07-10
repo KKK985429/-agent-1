@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/Tencent/WeKnora/internal/logger"
 	"github.com/Tencent/WeKnora/internal/types"
@@ -22,10 +23,12 @@ var predefinedMedicalCategories = []struct {
 }
 
 type medicalKBConfigService struct {
-	repo    interfaces.MedicalKnowledgeBaseConfigRepository
-	kbSvc   interfaces.KnowledgeBaseService
+	repo      interfaces.MedicalKnowledgeBaseConfigRepository
+	kbSvc     interfaces.KnowledgeBaseService
 	modelRepo interfaces.ModelRepository
 }
+
+const medicalKBTimeFormat = "2006-01-02 15:04:05"
 
 func NewMedicalKnowledgeBaseConfigService(
 	repo interfaces.MedicalKnowledgeBaseConfigRepository,
@@ -124,6 +127,13 @@ func (s *medicalKBConfigService) createFAQKB(
 	return created, nil
 }
 
+func formatMedicalKBTime(t *time.Time) string {
+	if t == nil || t.IsZero() {
+		return ""
+	}
+	return t.Local().Format(medicalKBTimeFormat)
+}
+
 // GetOrCreateConfig ensures each medical category has underlying KBs and returns config items.
 func (s *medicalKBConfigService) GetOrCreateConfig(
 	ctx context.Context,
@@ -195,11 +205,17 @@ func (s *medicalKBConfigService) GetOrCreateConfig(
 			}
 		}
 
+		latestUpdatedAt, err := s.repo.GetLatestContentUpdatedAt(ctx, tenantID, docKBID, faqKBID)
+		if err != nil {
+			logger.Warnf(ctx, "[MedicalKBConfig] Failed to load latest update time for %s: %v", cat.Category, err)
+		}
+
 		items = append(items, types.MedicalKBConfigItem{
-			Key:          cat.Category,
-			Name:         cat.DisplayName,
-			DocumentKBID: docKBID,
-			FAQKBID:      faqKBID,
+			Key:             cat.Category,
+			Name:            cat.DisplayName,
+			DocumentKBID:    docKBID,
+			FAQKBID:         faqKBID,
+			LatestUpdatedAt: formatMedicalKBTime(latestUpdatedAt),
 		})
 	}
 

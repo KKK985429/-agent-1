@@ -91,6 +91,9 @@ import MedicalFAQFormDialog from './components/MedicalFAQFormDialog.vue'
 import MedicalFAQImportDialog from './components/MedicalFAQImportDialog.vue'
 
 const props = defineProps<{ configItem: MedicalKBConfigItem | null }>()
+const emit = defineEmits<{
+  (e: 'latest-updated', value: string): void
+}>()
 const auth = useAuthStore()
 const userName = computed(() => auth.user?.username || auth.user?.name || '-')
 
@@ -174,6 +177,33 @@ function typeLabel(ft: string): string {
   return t === 'qa' ? 'Q&A' : t.toUpperCase()
 }
 
+function formatDateTime(value?: string) {
+  if (!value) return ''
+  if (/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/.test(value)) return value
+
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return value
+
+  const pad = (n: number) => String(n).padStart(2, '0')
+  return [
+    date.getFullYear(),
+    pad(date.getMonth() + 1),
+    pad(date.getDate()),
+  ].join('-') + ' ' + [
+    pad(date.getHours()),
+    pad(date.getMinutes()),
+    pad(date.getSeconds()),
+  ].join(':')
+}
+
+function emitLatestUpdated(items: UnifiedItem[]) {
+  const latest = items
+    .map((item) => item.updatedAt || item.createdAt)
+    .filter(Boolean)
+    .sort((a, b) => new Date(b).getTime() - new Date(a).getTime())[0]
+  emit('latest-updated', latest || '')
+}
+
 // ── 删除 ──
 async function handleDelete(row: UnifiedItem) {
   try {
@@ -206,8 +236,8 @@ async function fetchData() {
             uid: 'file-'+f.id, name: f.file_name||f.title||'', hitCount: 0,
             type: ft, typeLabel: typeLabel(ft),
             status: f.parse_status||'',
-            updatedBy: userName.value||'-', updatedAt: f.updated_at||'',
-            createdBy: userName.value||'-', createdAt: f.created_at||'',
+            updatedBy: userName.value||'-', updatedAt: formatDateTime(f.updated_at),
+            createdBy: userName.value||'-', createdAt: formatDateTime(f.created_at),
             raw: f, source: 'file',
           })
         }
@@ -227,8 +257,8 @@ async function fetchData() {
             uid: 'qa-'+q.id, name: q.standard_question||'', hitCount: 0,
             type: 'qa', typeLabel: 'Q&A',
             status: q.is_enabled ? 'success' : 'failed',
-            updatedBy: userName.value||'-', updatedAt: q.updated_at||'',
-            createdBy: userName.value||'-', createdAt: q.created_at||'',
+            updatedBy: userName.value||'-', updatedAt: formatDateTime(q.updated_at),
+            createdBy: userName.value||'-', createdAt: formatDateTime(q.created_at),
             raw: q, source: 'qa',
           })
         }
@@ -257,6 +287,7 @@ async function fetchData() {
     })
   }
 
+  emitLatestUpdated(all)
   pagination.total = filtered.length
   const start = (pagination.current-1)*pagination.pageSize
   tableData.value = filtered.slice(start, start+pagination.pageSize)
