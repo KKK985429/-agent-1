@@ -126,9 +126,10 @@ func applyKnowledgeListFilter(query *gorm.DB, filter types.KnowledgeListFilter) 
 			query = query.Where("channel = ?", filter.Source)
 		}
 	}
-	if filter.ParseStatus != "" {
-		query = query.Where("parse_status = ?", filter.ParseStatus)
-	}
+		if filter.ParseStatus != "" {
+			statuses := strings.Split(filter.ParseStatus, ",")
+			query = query.Where("parse_status IN ?", statuses)
+		}
 	if !filter.UpdatedFrom.IsZero() {
 		query = query.Where("updated_at >= ?", filter.UpdatedFrom)
 	}
