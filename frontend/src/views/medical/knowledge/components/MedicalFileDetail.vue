@@ -42,11 +42,8 @@
       <div v-if="fullMode" class="preview-block">
         <t-divider />
         <h4>原文件</h4>
-        <!-- PDF -->
         <iframe v-if="isPdf" :src="originalBlobUrl" width="100%" height="550px" frameborder="0" />
-        <!-- 图片 -->
         <img v-else-if="isImage" :src="originalBlobUrl" style="max-width:100%;max-height:550px" />
-        <!-- 文字类 -->
         <div v-else class="preview-text full">{{ originalText }}</div>
       </div>
     </template>
@@ -94,7 +91,6 @@ async function handlePreview() {
   try {
     const token = localStorage.getItem('weknora_token') || ''
     const key = localStorage.getItem('weknora_api_key') || ''
-    // 直接拿原文件
     const resp = await fetch(`/api/v1/knowledge/${props.knowledgeId}/download`, {
       headers: { 'Authorization': `Bearer ${token}`, 'X-API-Key': key },
     })

@@ -24,15 +24,17 @@ func NewMedicalDepartmentHandler(service interfaces.MedicalDepartmentService) *M
 
 // ListDepartments godoc
 // @Summary      获取科室列表
-// @Description  获取科室列表，支持搜索和筛选
+// @Description  分页查询科室列表，支持按名称/编号模糊搜索、按启用状态筛选
+// @Description  返回格式: {"success": true, "data": {"list": [...], "total": N, "page": 1, "page_size": 20}}
 // @Tags         医疗-科室管理
 // @Accept       json
 // @Produce      json
-// @Param        keyword  query     string  false  "搜索关键词（科室名称/编号）"
-// @Param        enabled  query     bool    false  "启用状态筛选"
-// @Param        page     query     int     false  "页码"
-// @Param        page_size query    int     false  "每页数量"
-// @Success      200      {object}  map[string]interface{}  "科室列表"
+// @Param        keyword   query     string  false  "搜索关键词（科室名称/编号）"
+// @Param        enabled   query     bool    false  "启用状态筛选（true/false），不传则查全部"
+// @Param        page      query     int     false  "页码，默认 1"
+// @Param        page_size query     int     false  "每页数量，默认 20"
+// @Success      200       {object}  map[string]interface{}  "科室分页列表，data 为 MedicalDepartmentListResponse"
+// @Failure      401       {object}  errors.AppError         "未登录"
 // @Security     Bearer
 // @Security     ApiKeyAuth
 // @Router       /medical/departments [get]
@@ -67,12 +69,15 @@ func (h *MedicalDepartmentHandler) ListDepartments(c *gin.Context) {
 
 // GetDepartment godoc
 // @Summary      获取科室详情
-// @Description  根据ID获取单个科室信息
+// @Description  根据 ID 获取单个科室信息，用于编辑前回显
+// @Description  返回格式: {"success": true, "data": {"id": "...", "name": "呼吸科", "code": "HX001", "hospital_area": "中心院区", "enabled": true, "created_by": "...", "created_at": "...", "updated_at": "..."}}
 // @Tags         医疗-科室管理
 // @Accept       json
 // @Produce      json
-// @Param        id   path      string  true  "科室ID"
-// @Success      200  {object}  map[string]interface{}  "科室详情"
+// @Param        id   path      string  true  "科室 ID（UUID）"
+// @Success      200  {object}  map[string]interface{}  "科室详情，data 为 MedicalDepartmentResponse"
+// @Failure      404  {object}  errors.AppError         "科室不存在"
+// @Failure      401  {object}  errors.AppError         "未登录"
 // @Security     Bearer
 // @Security     ApiKeyAuth
 // @Router       /medical/departments/{id} [get]
@@ -97,12 +102,15 @@ func (h *MedicalDepartmentHandler) GetDepartment(c *gin.Context) {
 
 // CreateDepartment godoc
 // @Summary      新建科室
-// @Description  创建新的医疗科室
+// @Description  创建新的医疗科室，同一租户下科室编号（code）不能重复
+// @Description  请求体: {"name": "呼吸科", "code": "HX001", "hospital_area": "中心院区", "enabled": true}
 // @Tags         医疗-科室管理
 // @Accept       json
 // @Produce      json
-// @Param        request  body      types.CreateMedicalDepartmentRequest  true  "科室信息"
-// @Success      200      {object}  map[string]interface{}  "创建的科室"
+// @Param        request  body      types.CreateMedicalDepartmentRequest  true  "科室信息，name/code/hospital_area 必填"
+// @Success      200      {object}  map[string]interface{}                "创建的科室，data 为 MedicalDepartmentResponse"
+// @Failure      400      {object}  errors.AppError                       "参数校验失败（必填项为空 / 编号已存在）"
+// @Failure      401      {object}  errors.AppError                       "未登录或无权限（需要 Contributor+）"
 // @Security     Bearer
 // @Security     ApiKeyAuth
 // @Router       /medical/departments [post]
@@ -137,13 +145,18 @@ func (h *MedicalDepartmentHandler) CreateDepartment(c *gin.Context) {
 
 // UpdateDepartment godoc
 // @Summary      编辑科室
-// @Description  更新科室信息
+// @Description  更新科室信息，只传需要修改的字段即可；同一租户下编号不能和其他科室重复
+// @Description  请求体: {"name": "呼吸科", "code": "HX001", "hospital_area": "中心院区", "enabled": true}
 // @Tags         医疗-科室管理
 // @Accept       json
 // @Produce      json
-// @Param        id       path      string                               true  "科室ID"
-// @Param        request  body      types.UpdateMedicalDepartmentRequest  true  "科室更新信息"
-// @Success      200      {object}  map[string]interface{}  "更新后的科室"
+// @Param        id       path      string                               true  "科室 ID（UUID）"
+// @Param        request  body      types.UpdateMedicalDepartmentRequest  true  "需更新的字段，nil 表示不修改"
+// @Success      200      {object}  map[string]interface{}                "更新后的科室，data 为 MedicalDepartmentResponse"
+// @Failure      400      {object}  errors.AppError                       "参数校验失败"
+// @Failure      404      {object}  errors.AppError                       "科室不存在"
+// @Failure      409      {object}  errors.AppError                       "编号已被其他科室占用"
+// @Failure      401      {object}  errors.AppError                       "未登录或无权限（需要 Contributor+）"
 // @Security     Bearer
 // @Security     ApiKeyAuth
 // @Router       /medical/departments/{id} [put]
@@ -175,12 +188,15 @@ func (h *MedicalDepartmentHandler) UpdateDepartment(c *gin.Context) {
 
 // DeleteDepartment godoc
 // @Summary      删除科室
-// @Description  软删除科室
+// @Description  软删除科室（标记 deleted_at 而非物理删除）
+// @Description  返回格式: {"success": true}
 // @Tags         医疗-科室管理
 // @Accept       json
 // @Produce      json
-// @Param        id   path      string  true  "科室ID"
-// @Success      200  {object}  map[string]interface{}  "删除结果"
+// @Param        id   path      string  true  "科室 ID（UUID）"
+// @Success      200  {object}  map[string]interface{}  "删除成功，无 data 字段"
+// @Failure      404  {object}  errors.AppError         "科室不存在"
+// @Failure      401  {object}  errors.AppError         "未登录或无权限（需要 Contributor+）"
 // @Security     Bearer
 // @Security     ApiKeyAuth
 // @Router       /medical/departments/{id} [delete]
@@ -203,11 +219,13 @@ func (h *MedicalDepartmentHandler) DeleteDepartment(c *gin.Context) {
 
 // ListHospitalAreas godoc
 // @Summary      获取院区列表
-// @Description  获取院区下拉选项
+// @Description  获取院区下拉选项列表
+// @Description  返回格式: {"success": true, "data": [{"label": "中心院区", "value": "中心院区"}, ...]}
 // @Tags         医疗-科室管理
 // @Accept       json
 // @Produce      json
-// @Success      200  {object}  map[string]interface{}  "院区列表"
+// @Success      200  {object}  map[string]interface{}  "院区选项列表，data 为 [{label, value}, ...]"
+// @Failure      401  {object}  errors.AppError         "未登录"
 // @Security     Bearer
 // @Security     ApiKeyAuth
 // @Router       /medical/hospital-areas [get]

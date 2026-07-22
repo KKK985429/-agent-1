@@ -494,7 +494,50 @@ client = WeKnoraClient(WEKNORA_BASE_URL, WEKNORA_API_KEY)
 # Tool definitions - Register all available tools for the MCP protocol
 @app.list_tools()
 async def handle_list_tools() -> list[types.Tool]:
-    """List all available WeKnora tools with their schemas"""
+    """List WeKnora tools exposed to external agents."""
+    return [
+        types.Tool(
+            name="get_knowledge_base",
+            description="根据知识库ID查询知识库详情",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "kb_id": {"type": "string", "description": "知识库ID"}
+                },
+                "required": ["kb_id"],
+            },
+        ),
+        types.Tool(
+            name="hybrid_search",
+            description="根据知识库ID和用户问题执行混合检索，返回召回结果",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "kb_id": {
+                        "type": "string",
+                        "description": "真实知识库ID，由外置agent或业务配置传入",
+                    },
+                    "query": {"type": "string", "description": "检索问题或关键词"},
+                    "vector_threshold": {
+                        "type": "number",
+                        "description": "向量相似度阈值，默认0.5",
+                        "default": 0.5,
+                    },
+                    "keyword_threshold": {
+                        "type": "number",
+                        "description": "关键词匹配阈值，默认0.3",
+                        "default": 0.3,
+                    },
+                    "match_count": {
+                        "type": "integer",
+                        "description": "返回结果数量，默认5",
+                        "default": 5,
+                    },
+                },
+                "required": ["kb_id", "query"],
+            },
+        ),
+    ]
     return [
         # Tenant Management
         types.Tool(
@@ -1015,6 +1058,12 @@ async def handle_call_tool(
     try:
         # Use empty dict if no arguments provided
         args = arguments or {}
+        allowed_tools = {"get_knowledge_base", "hybrid_search"}
+        if name not in allowed_tools:
+            raise ValueError(
+                f"Tool {name!r} is not exposed by this MCP server. "
+                "Only get_knowledge_base and hybrid_search are available."
+            )
 
         # Tenant Management - Route tenant-related operations
         if name == "create_tenant":

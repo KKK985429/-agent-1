@@ -83,6 +83,7 @@ type RouterParams struct {
 	WikiPageHandler              *handler.WikiPageHandler
 	MedicalDepartmentHandler     *handler.MedicalDepartmentHandler
 	MedicalKBConfigHandler       *handler.MedicalKBConfigHandler
+	MedicalSearchHandler         *handler.MedicalSearchHandler
 }
 
 // NewRouter 创建新的路由
@@ -206,6 +207,7 @@ func NewRouter(params RouterParams) *gin.Engine {
 		RegisterWikiPageRoutes(v1, params.WikiPageHandler, rbacGuards)
 		RegisterMedicalDepartmentRoutes(v1, params.MedicalDepartmentHandler, rbacGuards)
 		RegisterMedicalKBConfigRoutes(v1, params.MedicalKBConfigHandler, rbacGuards)
+	RegisterMedicalSearchRoutes(v1, params.MedicalSearchHandler, rbacGuards)
 		RegisterChunkerDebugRoutes(v1, rbacGuards)
 	}
 
@@ -371,6 +373,7 @@ func RegisterKnowledgeBaseRoutes(r *gin.RouterGroup, handler *handler.KnowledgeB
 		kb.PUT("/:id/pin", g.Viewer(), g.KBAccessRead("id"), handler.TogglePinKnowledgeBase)
 		// 混合搜索 — Viewer+ 且对 KB 有 read 权限 (read-only)
 		kb.GET("/:id/hybrid-search", g.Viewer(), g.KBAccessRead("id"), handler.HybridSearch)
+		kb.POST("/:id/hybrid-search", g.Viewer(), g.KBAccessRead("id"), handler.HybridSearch)
 		// 拷贝知识库 — Contributor+ (副本归调用者所有；不需要原 KB 的所有权)
 		kb.POST("/copy", g.Contributor(), handler.CopyKnowledgeBase)
 		// 获取知识库复制进度 — Viewer+
@@ -1633,5 +1636,17 @@ func RegisterMedicalKBConfigRoutes(r *gin.RouterGroup, handler *handler.MedicalK
 	medical := r.Group("/medical")
 	{
 		medical.GET("/knowledge-base-config", g.Viewer(), handler.GetOrCreateConfig)
+	}
+}
+
+// RegisterMedicalSearchRoutes registers the medical unified search route.
+// Viewer+ access — three-way retrieval across document, FAQ and wiki.
+func RegisterMedicalSearchRoutes(r *gin.RouterGroup, handler *handler.MedicalSearchHandler, g *rbacGuards) {
+	if handler == nil {
+		return
+	}
+	medical := r.Group("/medical")
+	{
+		medical.POST("/search", g.Viewer(), handler.Search)
 	}
 }

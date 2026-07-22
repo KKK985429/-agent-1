@@ -24,7 +24,7 @@
           <span class="card-title">{{ card.title }}</span>
         </div>
         <div class="card-meta">
-          <span class="card-time-label">最近更新：</span>
+          <span class="card-time-label">最近更新时间:</span>
           <span class="card-time">{{ card.latestTime || '--' }}</span>
         </div>
       </div>
@@ -73,6 +73,7 @@
         v-else-if="currentKBConfig"
         ref="kbContentRef"
         :config-item="currentKBConfig"
+        @latest-updated="handleKBLatestUpdated"
       />
       <!-- 配置获取失败 -->
       <div v-else class="placeholder-section">
@@ -137,8 +138,10 @@ import {
 } from '@/api/medical/department/index'
 import {
   getMedicalKBConfig,
+  listFAQEntries,
   type MedicalKBConfigItem,
 } from '@/api/medical/knowledge-base/index'
+import { listKnowledgeFiles } from '@/api/knowledge-base/index'
 import DepartmentFormDialog from './DepartmentFormDialog.vue'
 import MedicalKBContent from '../knowledge/MedicalKBContent.vue'
 
@@ -164,6 +167,110 @@ const kbConfigCache = ref<MedicalKBConfigItem[]>([])
 const kbConfigLoading = ref(false)
 const currentKBConfig = ref<MedicalKBConfigItem | null>(null)
 const kbContentRef = ref()
+
+function formatDisplayTime(value?: string) {
+  if (!value) return ''
+  if (/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/.test(value)) return value
+
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return value
+
+  const pad = (n: number) => String(n).padStart(2, '0')
+  return [
+    date.getFullYear(),
+    pad(date.getMonth() + 1),
+    pad(date.getDate()),
+  ].join('-') + ' ' + [
+    pad(date.getHours()),
+    pad(date.getMinutes()),
+    pad(date.getSeconds()),
+  ].join(':')
+}
+
+function updateKBCardLatestTimes(items: MedicalKBConfigItem[]) {
+  for (const item of items) {
+    const card = kbCards.value.find((c) => c.key === item.key)
+    if (card && item.latest_updated_at) {
+      card.latestTime = formatDisplayTime(item.latest_updated_at)
+    }
+  }
+}
+
+function handleKBLatestUpdated(value: string) {
+  const card = kbCards.value.find((c) => c.key === activeCard.value)
+  if (card) card.latestTime = formatDisplayTime(value)
+}
+
+function pickLatestTime(values: Array<string | undefined>) {
+  const sorted = values
+    .filter((value): value is string => Boolean(value))
+    .sort((a, b) => new Date(b).getTime() - new Date(a).getTime())
+  return sorted[0] || ''
+}
+
+function getResponseItems(res: any) {
+  if (Array.isArray(res?.data)) return res.data
+  if (Array.isArray(res?.data?.data)) return res.data.data
+  if (Array.isArray(res?.data?.entries)) return res.data.entries
+  return []
+}
+
+async function loadKBContentLatestTime(item: MedicalKBConfigItem) {
+  const times: string[] = []
+
+  if (item.document_kb_id) {
+    try {
+      const res = await listKnowledgeFiles(item.document_kb_id, {
+        page: 1,
+        page_size: 500,
+      })
+      for (const file of getResponseItems(res)) {
+        times.push(file.updated_at || file.created_at)
+      }
+    } catch (err) {
+      console.error(`加载${item.name}文件更新时间失败`, err)
+    }
+  }
+
+  if (item.faq_kb_id) {
+    try {
+      const res = await listFAQEntries(item.faq_kb_id, {
+        page: 1,
+        page_size: 500,
+      })
+      for (const qa of getResponseItems(res)) {
+        times.push(qa.updated_at || qa.created_at)
+      }
+    } catch (err) {
+      console.error(`加载${item.name} Q&A 更新时间失败`, err)
+    }
+  }
+
+  return pickLatestTime(times)
+}
+
+async function refreshAllKBCardLatestTimes(items: MedicalKBConfigItem[]) {
+  await Promise.all(items.map(async (item) => {
+    const latest = await loadKBContentLatestTime(item)
+    if (!latest) return
+    const card = kbCards.value.find((c) => c.key === item.key)
+    if (card) card.latestTime = formatDisplayTime(latest)
+  }))
+}
+
+async function refreshKBConfigCards() {
+  try {
+    const res = await getMedicalKBConfig()
+    if (res.success && res.data?.items) {
+      kbConfigCache.value = res.data.items
+      const items = res.data.items as MedicalKBConfigItem[]
+      updateKBCardLatestTimes(items)
+      refreshAllKBCardLatestTimes(items)
+    }
+  } catch (err) {
+    console.error('加载医疗知识库更新时间失败', err)
+  }
+}
 
 async function handleCardClick(key: string) {
   activeCard.value = key
@@ -191,6 +298,7 @@ async function loadKBConfig(category: string) {
     const res = await getMedicalKBConfig()
     if (res.success && res.data?.items) {
       kbConfigCache.value = res.data.items
+      updateKBCardLatestTimes(res.data.items as MedicalKBConfigItem[])
       const item = (res.data.items as MedicalKBConfigItem[]).find(
         (i) => i.key === category,
       )
@@ -307,7 +415,11 @@ async function fetchData() {
     })
     if (res.success) {
       const data = res.data
-      tableData.value = data.list || []
+      tableData.value = (data.list || []).map((item: MedicalDepartment) => ({
+        ...item,
+        created_at: formatDisplayTime(item.created_at),
+        updated_at: formatDisplayTime(item.updated_at),
+      }))
       pagination.total = data.total || 0
       // Update card latest time
       if (tableData.value.length > 0) {
@@ -316,7 +428,7 @@ async function fetchData() {
           tableData.value[0].updated_at,
         )
         const card = kbCards.value.find((c) => c.key === 'department')
-        if (card) card.latestTime = latest
+        if (card) card.latestTime = formatDisplayTime(latest)
       }
     }
   } catch (err: any) {
@@ -329,6 +441,7 @@ async function fetchData() {
 
 onMounted(() => {
   fetchData()
+  refreshKBConfigCards()
 })
 </script>
 

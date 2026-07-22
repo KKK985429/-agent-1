@@ -16,6 +16,7 @@ export interface MedicalKBConfigItem {
   name: string                      // 症状知识库 / 疾病知识库 / 药品知识库 / 检验检查知识库
   document_kb_id: string
   faq_kb_id: string
+  latest_updated_at?: string
 }
 
 export interface MedicalKBConfigResponse {

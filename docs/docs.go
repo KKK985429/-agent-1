@@ -7738,6 +7738,430 @@ const docTemplate = `{
                 }
             }
         },
+        "/medical/departments": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    },
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "分页查询科室列表，支持按名称/编号模糊搜索、按启用状态筛选\n返回格式: {\"success\": true, \"data\": {\"list\": [...], \"total\": N, \"page\": 1, \"page_size\": 20}}",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "医疗-科室管理"
+                ],
+                "summary": "获取科室列表",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "搜索关键词（科室名称/编号）",
+                        "name": "keyword",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "启用状态筛选（true/false），不传则查全部",
+                        "name": "enabled",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "页码，默认 1",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "每页数量，默认 20",
+                        "name": "page_size",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "科室分页列表，data 为 MedicalDepartmentListResponse",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "401": {
+                        "description": "未登录",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    },
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "创建新的医疗科室，同一租户下科室编号（code）不能重复\n请求体: {\"name\": \"呼吸科\", \"code\": \"HX001\", \"hospital_area\": \"中心院区\", \"enabled\": true}",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "医疗-科室管理"
+                ],
+                "summary": "新建科室",
+                "parameters": [
+                    {
+                        "description": "科室信息，name/code/hospital_area 必填",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_types.CreateMedicalDepartmentRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "创建的科室，data 为 MedicalDepartmentResponse",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "参数校验失败（必填项为空 / 编号已存在）",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
+                        }
+                    },
+                    "401": {
+                        "description": "未登录或无权限（需要 Contributor+）",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
+                        }
+                    }
+                }
+            }
+        },
+        "/medical/departments/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    },
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "根据 ID 获取单个科室信息，用于编辑前回显\n返回格式: {\"success\": true, \"data\": {\"id\": \"...\", \"name\": \"呼吸科\", \"code\": \"HX001\", \"hospital_area\": \"中心院区\", \"enabled\": true, \"created_by\": \"...\", \"created_at\": \"...\", \"updated_at\": \"...\"}}",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "医疗-科室管理"
+                ],
+                "summary": "获取科室详情",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "科室 ID（UUID）",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "科室详情，data 为 MedicalDepartmentResponse",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "401": {
+                        "description": "未登录",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
+                        }
+                    },
+                    "404": {
+                        "description": "科室不存在",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "Bearer": []
+                    },
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "更新科室信息，只传需要修改的字段即可；同一租户下编号不能和其他科室重复\n请求体: {\"name\": \"呼吸科\", \"code\": \"HX001\", \"hospital_area\": \"中心院区\", \"enabled\": true}",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "医疗-科室管理"
+                ],
+                "summary": "编辑科室",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "科室 ID（UUID）",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "需更新的字段，nil 表示不修改",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_types.UpdateMedicalDepartmentRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "更新后的科室，data 为 MedicalDepartmentResponse",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "参数校验失败",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
+                        }
+                    },
+                    "401": {
+                        "description": "未登录或无权限（需要 Contributor+）",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
+                        }
+                    },
+                    "404": {
+                        "description": "科室不存在",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
+                        }
+                    },
+                    "409": {
+                        "description": "编号已被其他科室占用",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "Bearer": []
+                    },
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "软删除科室（标记 deleted_at 而非物理删除）\n返回格式: {\"success\": true}",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "医疗-科室管理"
+                ],
+                "summary": "删除科室",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "科室 ID（UUID）",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "删除成功，无 data 字段",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "401": {
+                        "description": "未登录或无权限（需要 Contributor+）",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
+                        }
+                    },
+                    "404": {
+                        "description": "科室不存在",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
+                        }
+                    }
+                }
+            }
+        },
+        "/medical/hospital-areas": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    },
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "获取院区下拉选项列表\n返回格式: {\"success\": true, \"data\": [{\"label\": \"中心院区\", \"value\": \"中心院区\"}, ...]}",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "医疗-科室管理"
+                ],
+                "summary": "获取院区列表",
+                "responses": {
+                    "200": {
+                        "description": "院区选项列表，data 为 [{label, value}, ...]",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "401": {
+                        "description": "未登录",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
+                        }
+                    }
+                }
+            }
+        },
+        "/medical/knowledge-base-config": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    },
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "返回当前租户的医疗知识库配置。首次访问时自动创建缺失的底层 WeKnora 知识库（document + FAQ），使用租户默认模型。\n返回格式: {\"success\": true, \"data\": {\"items\": [{\"key\": \"symptom\", \"name\": \"症状知识库\", \"document_kb_id\": \"xxx\", \"faq_kb_id\": \"yyy\"}, ...]}}\ncategory 取值: symptom / disease / drug / lab",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "医疗-知识库配置"
+                ],
+                "summary": "获取医疗知识库配置",
+                "responses": {
+                    "200": {
+                        "description": "配置列表，data.items 为 MedicalKBConfigItem[]",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "401": {
+                        "description": "未登录",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
+                        }
+                    }
+                }
+            }
+        },
+        "/medical/search": {
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    },
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "并行检索文档（HybridSearch）、FAQ（语义检索）、Wiki（全文搜索），统一格式合并返回，按 Wiki \u003e FAQ \u003e Document 排序\n返回格式: {\"success\": true, \"data\": {\"results\": [...], \"doc_raw\": [...], \"faq_raw\": [...], \"wiki_raw\": [...]}}\n每个结果包含: source(document/faq/wiki), score, title, content, kb_id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "医疗-检索"
+                ],
+                "summary": "医疗三路统一检索",
+                "parameters": [
+                    {
+                        "description": "检索请求，categories 必填（symptom/disease/drug/lab），query 必填",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_types.MedicalSearchRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "统一检索结果，data 为 MedicalSearchResponse",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "参数不合法（categories 为空 / query 为空）",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
+                        }
+                    },
+                    "401": {
+                        "description": "未登录",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
+                        }
+                    }
+                }
+            }
+        },
         "/messages/chat-history-stats": {
             "get": {
                 "security": [
@@ -13338,6 +13762,28 @@ const docTemplate = `{
                 }
             }
         },
+        "github_com_Tencent_WeKnora_internal_types.CreateMedicalDepartmentRequest": {
+            "type": "object",
+            "required": [
+                "code",
+                "hospital_area",
+                "name"
+            ],
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "enabled": {
+                    "type": "boolean"
+                },
+                "hospital_area": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
         "github_com_Tencent_WeKnora_internal_types.CreateOrganizationRequest": {
             "type": "object",
             "required": [
@@ -15005,6 +15451,46 @@ const docTemplate = `{
                 "MatchTypeDirectLoad",
                 "MatchTypeDataAnalysis"
             ]
+        },
+        "github_com_Tencent_WeKnora_internal_types.MedicalSearchRequest": {
+            "type": "object",
+            "required": [
+                "categories",
+                "query"
+            ],
+            "properties": {
+                "categories": {
+                    "description": "医疗分类: symptom/disease/drug/lab，可多选",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "doc_match_count": {
+                    "description": "文档路返回条数，默认 10",
+                    "type": "integer"
+                },
+                "faq_match_count": {
+                    "description": "FAQ 路返回条数，默认 5",
+                    "type": "integer"
+                },
+                "keyword_threshold": {
+                    "description": "关键词阈值，默认 0.3",
+                    "type": "number"
+                },
+                "query": {
+                    "description": "查询文本",
+                    "type": "string"
+                },
+                "vector_threshold": {
+                    "description": "向量阈值，默认 0.15",
+                    "type": "number"
+                },
+                "wiki_limit": {
+                    "description": "Wiki 路返回条数，默认 5",
+                    "type": "integer"
+                }
+            }
         },
         "github_com_Tencent_WeKnora_internal_types.Membership": {
             "type": "object",
@@ -16726,6 +17212,23 @@ const docTemplate = `{
                 "success": {
                     "description": "Whether the tool executed successfully",
                     "type": "boolean"
+                }
+            }
+        },
+        "github_com_Tencent_WeKnora_internal_types.UpdateMedicalDepartmentRequest": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "enabled": {
+                    "type": "boolean"
+                },
+                "hospital_area": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
                 }
             }
         },

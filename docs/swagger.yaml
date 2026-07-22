@@ -498,6 +498,21 @@ definitions:
         description: 'Summarize threshold: number of messages before summarization'
         type: integer
     type: object
+  github_com_Tencent_WeKnora_internal_types.CreateMedicalDepartmentRequest:
+    properties:
+      code:
+        type: string
+      enabled:
+        type: boolean
+      hospital_area:
+        type: string
+      name:
+        type: string
+    required:
+    - code
+    - hospital_area
+    - name
+    type: object
   github_com_Tencent_WeKnora_internal_types.CreateOrganizationRequest:
     properties:
       avatar:
@@ -1772,6 +1787,35 @@ definitions:
     - MatchTypeWebSearch
     - MatchTypeDirectLoad
     - MatchTypeDataAnalysis
+  github_com_Tencent_WeKnora_internal_types.MedicalSearchRequest:
+    properties:
+      categories:
+        description: '医疗分类: symptom/disease/drug/lab，可多选'
+        items:
+          type: string
+        type: array
+      doc_match_count:
+        description: 文档路返回条数，默认 10
+        type: integer
+      faq_match_count:
+        description: FAQ 路返回条数，默认 5
+        type: integer
+      keyword_threshold:
+        description: 关键词阈值，默认 0.3
+        type: number
+      query:
+        description: 查询文本
+        type: string
+      vector_threshold:
+        description: 向量阈值，默认 0.15
+        type: number
+      wiki_limit:
+        description: Wiki 路返回条数，默认 5
+        type: integer
+    required:
+    - categories
+    - query
+    type: object
   github_com_Tencent_WeKnora_internal_types.Membership:
     properties:
       role:
@@ -3062,6 +3106,17 @@ definitions:
       success:
         description: Whether the tool executed successfully
         type: boolean
+    type: object
+  github_com_Tencent_WeKnora_internal_types.UpdateMedicalDepartmentRequest:
+    properties:
+      code:
+        type: string
+      enabled:
+        type: boolean
+      hospital_area:
+        type: string
+      name:
+        type: string
     type: object
   github_com_Tencent_WeKnora_internal_types.UpdateMemberRoleRequest:
     properties:
@@ -9721,6 +9776,288 @@ paths:
       summary: 获取我的待处理邀请数
       tags:
       - 我的邀请
+  /medical/departments:
+    get:
+      consumes:
+      - application/json
+      description: |-
+        分页查询科室列表，支持按名称/编号模糊搜索、按启用状态筛选
+        返回格式: {"success": true, "data": {"list": [...], "total": N, "page": 1, "page_size": 20}}
+      parameters:
+      - description: 搜索关键词（科室名称/编号）
+        in: query
+        name: keyword
+        type: string
+      - description: 启用状态筛选（true/false），不传则查全部
+        in: query
+        name: enabled
+        type: boolean
+      - description: 页码，默认 1
+        in: query
+        name: page
+        type: integer
+      - description: 每页数量，默认 20
+        in: query
+        name: page_size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 科室分页列表，data 为 MedicalDepartmentListResponse
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: 未登录
+          schema:
+            $ref: '#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError'
+      security:
+      - Bearer: []
+      - ApiKeyAuth: []
+      summary: 获取科室列表
+      tags:
+      - 医疗-科室管理
+    post:
+      consumes:
+      - application/json
+      description: |-
+        创建新的医疗科室，同一租户下科室编号（code）不能重复
+        请求体: {"name": "呼吸科", "code": "HX001", "hospital_area": "中心院区", "enabled": true}
+      parameters:
+      - description: 科室信息，name/code/hospital_area 必填
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_Tencent_WeKnora_internal_types.CreateMedicalDepartmentRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 创建的科室，data 为 MedicalDepartmentResponse
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数校验失败（必填项为空 / 编号已存在）
+          schema:
+            $ref: '#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError'
+        "401":
+          description: 未登录或无权限（需要 Contributor+）
+          schema:
+            $ref: '#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError'
+      security:
+      - Bearer: []
+      - ApiKeyAuth: []
+      summary: 新建科室
+      tags:
+      - 医疗-科室管理
+  /medical/departments/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: |-
+        软删除科室（标记 deleted_at 而非物理删除）
+        返回格式: {"success": true}
+      parameters:
+      - description: 科室 ID（UUID）
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 删除成功，无 data 字段
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: 未登录或无权限（需要 Contributor+）
+          schema:
+            $ref: '#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError'
+        "404":
+          description: 科室不存在
+          schema:
+            $ref: '#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError'
+      security:
+      - Bearer: []
+      - ApiKeyAuth: []
+      summary: 删除科室
+      tags:
+      - 医疗-科室管理
+    get:
+      consumes:
+      - application/json
+      description: |-
+        根据 ID 获取单个科室信息，用于编辑前回显
+        返回格式: {"success": true, "data": {"id": "...", "name": "呼吸科", "code": "HX001", "hospital_area": "中心院区", "enabled": true, "created_by": "...", "created_at": "...", "updated_at": "..."}}
+      parameters:
+      - description: 科室 ID（UUID）
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 科室详情，data 为 MedicalDepartmentResponse
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: 未登录
+          schema:
+            $ref: '#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError'
+        "404":
+          description: 科室不存在
+          schema:
+            $ref: '#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError'
+      security:
+      - Bearer: []
+      - ApiKeyAuth: []
+      summary: 获取科室详情
+      tags:
+      - 医疗-科室管理
+    put:
+      consumes:
+      - application/json
+      description: |-
+        更新科室信息，只传需要修改的字段即可；同一租户下编号不能和其他科室重复
+        请求体: {"name": "呼吸科", "code": "HX001", "hospital_area": "中心院区", "enabled": true}
+      parameters:
+      - description: 科室 ID（UUID）
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: 需更新的字段，nil 表示不修改
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_Tencent_WeKnora_internal_types.UpdateMedicalDepartmentRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 更新后的科室，data 为 MedicalDepartmentResponse
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数校验失败
+          schema:
+            $ref: '#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError'
+        "401":
+          description: 未登录或无权限（需要 Contributor+）
+          schema:
+            $ref: '#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError'
+        "404":
+          description: 科室不存在
+          schema:
+            $ref: '#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError'
+        "409":
+          description: 编号已被其他科室占用
+          schema:
+            $ref: '#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError'
+      security:
+      - Bearer: []
+      - ApiKeyAuth: []
+      summary: 编辑科室
+      tags:
+      - 医疗-科室管理
+  /medical/hospital-areas:
+    get:
+      consumes:
+      - application/json
+      description: |-
+        获取院区下拉选项列表
+        返回格式: {"success": true, "data": [{"label": "中心院区", "value": "中心院区"}, ...]}
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 院区选项列表，data 为 [{label, value}, ...]
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: 未登录
+          schema:
+            $ref: '#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError'
+      security:
+      - Bearer: []
+      - ApiKeyAuth: []
+      summary: 获取院区列表
+      tags:
+      - 医疗-科室管理
+  /medical/knowledge-base-config:
+    get:
+      consumes:
+      - application/json
+      description: |-
+        返回当前租户的医疗知识库配置。首次访问时自动创建缺失的底层 WeKnora 知识库（document + FAQ），使用租户默认模型。
+        返回格式: {"success": true, "data": {"items": [{"key": "symptom", "name": "症状知识库", "document_kb_id": "xxx", "faq_kb_id": "yyy"}, ...]}}
+        category 取值: symptom / disease / drug / lab
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 配置列表，data.items 为 MedicalKBConfigItem[]
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: 未登录
+          schema:
+            $ref: '#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError'
+      security:
+      - Bearer: []
+      - ApiKeyAuth: []
+      summary: 获取医疗知识库配置
+      tags:
+      - 医疗-知识库配置
+  /medical/search:
+    post:
+      consumes:
+      - application/json
+      description: |-
+        并行检索文档（HybridSearch）、FAQ（语义检索）、Wiki（全文搜索），统一格式合并返回，按 Wiki > FAQ > Document 排序
+        返回格式: {"success": true, "data": {"results": [...], "doc_raw": [...], "faq_raw": [...], "wiki_raw": [...]}}
+        每个结果包含: source(document/faq/wiki), score, title, content, kb_id
+      parameters:
+      - description: 检索请求，categories 必填（symptom/disease/drug/lab），query 必填
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_Tencent_WeKnora_internal_types.MedicalSearchRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 统一检索结果，data 为 MedicalSearchResponse
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数不合法（categories 为空 / query 为空）
+          schema:
+            $ref: '#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError'
+        "401":
+          description: 未登录
+          schema:
+            $ref: '#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError'
+      security:
+      - Bearer: []
+      - ApiKeyAuth: []
+      summary: 医疗三路统一检索
+      tags:
+      - 医疗-检索
   /messages/{session_id}/{id}:
     delete:
       consumes:
