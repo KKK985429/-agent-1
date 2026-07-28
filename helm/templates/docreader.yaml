@@ -85,8 +85,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  # Service name must be "docreader" - app references this
-  name: docreader
+  name: {{ .Values.serviceNames.docreader }}
   namespace: {{ .Release.Namespace }}
   labels:
     {{- include "weknora.componentLabels" (dict "component" "docreader" "context" .) | nindent 4 }}

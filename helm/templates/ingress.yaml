@@ -38,7 +38,7 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: app
+                name: {{ .Values.serviceNames.app }}
                 port:
                   name: http
           # Frontend routes - catch-all
@@ -46,7 +46,7 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: frontend
+                name: {{ .Values.serviceNames.frontend }}
                 port:
                   name: http
 {{- end }}

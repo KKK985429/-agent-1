@@ -43,7 +43,7 @@ spec:
           {{- end }}
           env:
             - name: APP_HOST
-              value: {{ .Values.frontend.appHost | default "app" | quote }}
+              value: {{ .Values.frontend.appHost | default .Values.serviceNames.app | quote }}
             - name: APP_PORT
               value: {{ .Values.frontend.appPort | default .Values.app.service.port | quote }}
           ports:
@@ -95,8 +95,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  # Service name must be "frontend" - ingress references this
-  name: frontend
+  name: {{ .Values.serviceNames.frontend }}
   namespace: {{ .Release.Namespace }}
   labels:
     {{- include "weknora.componentLabels" (dict "component" "frontend" "context" .) | nindent 4 }}

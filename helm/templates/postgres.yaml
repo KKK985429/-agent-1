@@ -111,8 +111,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  # Service name must be "postgres" - app references this
-  name: postgres
+  name: {{ .Values.serviceNames.postgres }}
   namespace: {{ .Release.Namespace }}
   labels:
     {{- include "weknora.componentLabels" (dict "component" "database" "context" .) | nindent 4 }}

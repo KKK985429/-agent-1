@@ -33,6 +33,17 @@ global:
   containerSecurityContext:
     allowPrivilegeEscalation: false
 
+# Stable in-cluster DNS names. PostgreSQL and Redis intentionally retain the
+# upstream names so they can be migrated independently later.
+serviceNames:
+  app: wisdom-app
+  frontend: wisdom-frontend
+  docreader: wisdom-docreader
+  postgres: postgres
+  redis: redis
+  neo4j: wisdom-neo4j
+  mcp: wisdom-mcp
+
 # -- ServiceAccount configuration
 # Ref: https://helm.sh/docs/chart_best_practices/rbac/
 serviceAccount:
@@ -236,6 +247,43 @@ docreader:
   affinity: {}
 
 # -----------------------------------------------------------------------------
+# MCP Server (Streamable HTTP)
+# -----------------------------------------------------------------------------
+mcp:
+  # -- Enable the WeKnora MCP server
+  enabled: true
+
+  # -- Number of replicas
+  replicaCount: 1
+
+  image:
+    # -- Image repository
+    repository: swr.cn-north-4.myhuaweicloud.com/registry-huawei/effyic/weknora-mcp
+    # -- Image tag verified by the existing Docker deployment
+    tag: 20260624-mcp1
+    # -- Image pull policy
+    pullPolicy: IfNotPresent
+
+  service:
+    type: ClusterIP
+    port: 8000
+
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+  securityContext:
+    allowPrivilegeEscalation: false
+
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+
+# -----------------------------------------------------------------------------
 # PostgreSQL (ParadeDB - Vector + BM25 Search)
 # -----------------------------------------------------------------------------
 postgresql:
@@ -377,7 +425,8 @@ ingress:
 #   helm install weknora ./helm \
 #     --set secrets.dbPassword=<secure-password> \
 #     --set secrets.redisPassword=<secure-password> \
-#     --set secrets.jwtSecret=<secure-random-string>
+#     --set secrets.jwtSecret=<secure-random-string> \
+#     --set secrets.weknoraApiKey=<tenant-api-key>
 #
 secrets:
   # -- Database username
@@ -408,8 +457,11 @@ secrets:
   # (the UI will display ciphertext like "enc:v1:..." instead of plaintext).
   systemAesKey: ""
 
+  # -- Tenant API key used by the MCP server to call the WeKnora API
+  weknoraApiKey: ""
+
   # -- Use existing secret instead of creating one
-  # The secret must contain keys: DB_USER, DB_PASSWORD, DB_NAME, REDIS_USERNAME, REDIS_PASSWORD, JWT_SECRET, TENANT_AES_KEY, SYSTEM_AES_KEY
+  # The secret must contain keys: DB_USER, DB_PASSWORD, DB_NAME, REDIS_USERNAME, REDIS_PASSWORD, JWT_SECRET, TENANT_AES_KEY, SYSTEM_AES_KEY, WEKNORA_API_KEY
   existingSecret: ""
 
 # -----------------------------------------------------------------------------
