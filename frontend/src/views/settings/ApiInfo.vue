@@ -399,7 +399,7 @@ const loadInfo = async () => {
 }
 
 const openApiDoc = () => {
-  window.open('https://github.com/Tencent/WeKnora/blob/main/docs/api/README.md', '_blank')
+  window.open('https://github.com/KKK985429/-agent-1/blob/main/docs/api/README.md', '_blank')
 }
 
 const fallbackCopyText = (text: string) => {

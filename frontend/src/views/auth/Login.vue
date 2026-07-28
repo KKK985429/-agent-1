@@ -95,31 +95,13 @@
       </svg>
     </div>
 
-    <!-- Logo - Top Left -->
-    <a href="https://github.com/Tencent/WeKnora" target="_blank" class="header-logo" :title="$t('common.github')">
-      <img src="@/assets/img/weknora.png" alt="WeKnora" class="logo-image" />
-    </a>
+    <!-- Brand - Top Left -->
+    <div class="header-logo" aria-label="AIP-wisdom">
+      <img src="@/assets/img/effyic-logo-horizontal.png" alt="识因智能 Effyic Intelligence" class="logo-image" />
+    </div>
 
     <!-- Header Links - Top Right -->
     <div class="header-links">
-      <a href="https://weknora.weixin.qq.com" target="_blank" class="header-link" :title="$t('common.website')">
-        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
-          stroke-linecap="round">
-          <circle cx="12" cy="12" r="10" />
-          <line x1="2" y1="12" x2="22" y2="12" />
-          <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
-        </svg>
-        <span class="link-text">{{ $t('common.website') }}</span>
-      </a>
-
-      <a href="https://github.com/Tencent/WeKnora" target="_blank" class="header-link" :title="$t('common.info')">
-        <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor">
-          <path
-            d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z" />
-        </svg>
-        <span class="link-text">GitHub</span>
-      </a>
-
       <div class="language-switch">
         <button @click="toggleLanguageMenu" class="header-link" :title="currentLangOption?.label">
           <span class="lang-flag-icon">{{ currentLangOption?.flag }}</span>
@@ -779,7 +761,7 @@ onMounted(async () => {
   min-height: 100%;
   overflow: hidden;
   position: relative;
-  background: linear-gradient(225deg, #022c22 0%, #064e3b 15%, #065f46 25%, #047857 38%, #059669 50%, #07C05F 65%, #10B981 78%, #34D399 90%, #6EE7B7 100%);
+  background: linear-gradient(225deg, #022f35 0%, #064a52 18%, #08717d 38%, #1598a8 60%, #42b5c3 80%, #8ad8df 100%);
 
   &::before {
     content: '';
@@ -815,7 +797,7 @@ onMounted(async () => {
   border: 2px solid rgba(255, 255, 255, 0.3);
   box-shadow:
     0 0 15px rgba(255, 255, 255, 0.35),
-    0 0 30px rgba(16, 185, 129, 0.2),
+    0 0 30px rgba(43, 170, 183, 0.2),
     inset 0 0 8px rgba(255, 255, 255, 0.1);
   display: flex;
   align-items: center;
@@ -1008,7 +990,7 @@ onMounted(async () => {
   flex: 0 0 52%;
   display: flex;
   align-items: flex-end;
-  padding: 100px 30px 100px 50px;
+  padding: 140px 30px 100px 50px;
   box-sizing: border-box;
   position: relative;
 }
@@ -1139,12 +1121,17 @@ onMounted(async () => {
   top: 32px;
   left: 50px;
   z-index: 100;
-  cursor: pointer;
+  display: flex;
+  align-items: flex-start;
+  flex-direction: column;
+  gap: 3px;
 
   .logo-image {
-    width: 120px;
-    height: auto;
+    width: 184px;
+    height: 69px;
+    object-fit: contain;
   }
+
 }
 
 .header-links {
@@ -1349,7 +1336,7 @@ onMounted(async () => {
   margin: 10px 0 0;
   padding: 8px 12px;
   border-radius: 8px;
-  background: var(--td-success-color-light, rgba(7, 192, 95, 0.08));
+  background: var(--td-success-color-light, rgba(21, 152, 168, 0.08));
   color: var(--td-brand-color-active);
   font-size: 12.5px;
   line-height: 1.5;
@@ -1397,7 +1384,7 @@ onMounted(async () => {
     &:hover {
       border-color: var(--td-brand-color-active);
       color: var(--td-brand-color-active);
-      background: var(--td-success-color-light, rgba(7, 192, 95, 0.08));
+      background: var(--td-success-color-light, rgba(21, 152, 168, 0.08));
     }
   }
 }
@@ -1428,7 +1415,7 @@ onMounted(async () => {
 
     &:focus-within {
       border-color: var(--td-brand-color);
-      box-shadow: 0 0 0 3px rgba(7, 192, 95, 0.1);
+      box-shadow: 0 0 0 3px rgba(21, 152, 168, 0.1);
     }
 
     &:hover {
@@ -1594,7 +1581,8 @@ onMounted(async () => {
     left: 40px;
 
     .logo-image {
-      width: 100px;
+      width: 164px;
+      height: 61px;
     }
   }
 
@@ -1630,7 +1618,7 @@ onMounted(async () => {
   .showcase-section {
     flex: 0 0 auto;
     min-height: 50vh;
-    padding: 40px 24px;
+    padding: 124px 24px 40px;
   }
 
   .showcase-content {
@@ -1642,7 +1630,8 @@ onMounted(async () => {
     left: 30px;
 
     .logo-image {
-      width: 80px;
+      width: 144px;
+      height: 54px;
     }
   }
 
@@ -1694,7 +1683,7 @@ onMounted(async () => {
   }
 
   .showcase-section {
-    padding: 32px 20px;
+    padding: 108px 20px 32px;
   }
 
   .header-logo {
@@ -1702,7 +1691,8 @@ onMounted(async () => {
     left: 20px;
 
     .logo-image {
-      width: 70px;
+      width: 128px;
+      height: 48px;
     }
   }
 
@@ -1757,7 +1747,7 @@ onMounted(async () => {
 <style lang="less">
 html[theme-mode="dark"] {
   .login-layout {
-    background: linear-gradient(225deg, #011a14 0%, #032e22 15%, #043a2c 25%, #05503d 38%, #046647 50%, #038a56 65%, #049b60 78%, #06a06a 90%, #07b074 100%);
+    background: linear-gradient(225deg, #011b1f 0%, #032f35 20%, #074e57 42%, #086c77 62%, #1598a8 82%, #35aeba 100%);
   }
 
   .knowledge-node {
@@ -1768,10 +1758,6 @@ html[theme-mode="dark"] {
 
   .connection-line {
     stroke: rgba(255, 255, 255, 0.25);
-  }
-
-  .header-logo .logo-image {
-    filter: invert(1) hue-rotate(180deg) brightness(1.1);
   }
 
   .header-link {

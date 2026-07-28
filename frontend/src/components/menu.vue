@@ -3,7 +3,7 @@
         <!-- 展开时：Logo + 搜索/折叠按钮同行 -->
         <div class="logo_row" v-if="!uiStore.sidebarCollapsed">
             <div class="logo_box" @click="router.push('/platform/knowledge-bases')" style="cursor: pointer;">
-                <img class="logo" src="@/assets/img/weknora.png" alt="">
+                <img class="logo" src="@/assets/img/effyic-logo-horizontal.png" alt="识因智能">
                 <sup v-if="isLiteEdition" class="lite-badge">Lite</sup>
             </div>
             <div class="logo_actions">
@@ -1016,7 +1016,7 @@ const onDragHandleMouseDown = (e: MouseEvent) => {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        height: 56px;
+        height: 64px;
         flex-shrink: 0;
         padding: 0 8px 0 8px;
     }
@@ -1057,17 +1057,24 @@ const onDragHandleMouseDown = (e: MouseEvent) => {
     .logo_box {
         display: flex;
         align-items: center;
-        flex: 1;
+        flex: 0 1 146px;
         min-width: 0;
         overflow: hidden;
+        padding: 4px 2px;
+        border: 0;
+        background: transparent;
+        box-sizing: border-box;
 
         .logo {
-            width: 134px;
-            height: auto;
+            width: 136px;
+            height: 51px;
+            object-fit: contain;
+            flex-shrink: 0;
+            filter: invert(1) hue-rotate(180deg);
         }
 
         .lite-badge {
-            margin-left: 2px;
+            margin-left: 3px;
             align-self: flex-start;
             margin-top: 2px;
             font-size: 9px;
@@ -1404,7 +1411,7 @@ const onDragHandleMouseDown = (e: MouseEvent) => {
     }
 
     .submenu_item_selected {
-        background: rgba(7, 192, 95, 0.05) !important;
+        background: rgba(21, 152, 168, 0.05) !important;
         border-radius: 6px;
     }
 
@@ -1628,9 +1635,8 @@ const onDragHandleMouseDown = (e: MouseEvent) => {
 }
 </style>
 <style lang="less">
-// Dark mode: invert dark logo to light
 html[theme-mode="dark"] .aside_box .logo_box .logo {
-    filter: invert(1) hue-rotate(180deg);
+    filter: none;
 }
 
 // Dark mode: 滚动条在深色背景下需要更亮的颜色才看得见

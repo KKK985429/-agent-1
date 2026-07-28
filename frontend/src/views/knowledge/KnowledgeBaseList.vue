@@ -1811,7 +1811,7 @@ const handleUploadFinishedEvent = (event: Event) => {
   display: inline-flex;
   align-items: center;
   padding: 2px 6px;
-  background: rgba(7, 192, 95, 0.1);
+  background: rgba(21, 152, 168, 0.1);
   border-radius: 4px;
   font-size: 12px;
   color: var(--td-brand-color);
@@ -1906,7 +1906,7 @@ const handleUploadFinishedEvent = (event: Event) => {
   align-items: center;
   gap: 4px;
   padding: 2px 8px;
-  background: rgba(7, 192, 95, 0.1);
+  background: rgba(21, 152, 168, 0.1);
   border-radius: 4px;
   font-size: 12px;
   color: var(--td-brand-color);
@@ -1923,7 +1923,7 @@ const handleUploadFinishedEvent = (event: Event) => {
   align-items: center;
   gap: 5px;
   padding: 3px 8px;
-  background: rgba(7, 192, 95, 0.06);
+  background: rgba(21, 152, 168, 0.06);
   border-radius: 6px;
   font-size: 12px;
   line-height: 1.4;
@@ -1957,7 +1957,7 @@ const handleUploadFinishedEvent = (event: Event) => {
   align-items: center;
   gap: 5px;
   padding: 3px 8px;
-  background: rgba(7, 192, 95, 0.06);
+  background: rgba(21, 152, 168, 0.06);
   border-radius: 6px;
   font-size: 11px;
   line-height: 1.4;
@@ -1980,16 +1980,16 @@ const handleUploadFinishedEvent = (event: Event) => {
 
   // 共享知识库根据类型显示不同样式
   &.kb-type-document {
-    background: linear-gradient(135deg, var(--td-bg-color-container) 0%, rgba(7, 192, 95, 0.04) 100%) !important;
+    background: linear-gradient(135deg, var(--td-bg-color-container) 0%, rgba(21, 152, 168, 0.04) 100%) !important;
 
     &:hover {
       border-color: var(--td-brand-color) !important;
-      box-shadow: 0 4px 12px rgba(7, 192, 95, 0.12) !important;
-      background: linear-gradient(135deg, var(--td-bg-color-container) 0%, rgba(7, 192, 95, 0.08) 100%) !important;
+      box-shadow: 0 4px 12px rgba(21, 152, 168, 0.12) !important;
+      background: linear-gradient(135deg, var(--td-bg-color-container) 0%, rgba(21, 152, 168, 0.08) 100%) !important;
     }
 
     &::after {
-      background: linear-gradient(135deg, rgba(7, 192, 95, 0.08) 0%, transparent 100%) !important;
+      background: linear-gradient(135deg, rgba(21, 152, 168, 0.08) 0%, transparent 100%) !important;
     }
   }
 
@@ -2256,7 +2256,7 @@ const handleUploadFinishedEvent = (event: Event) => {
 
   &:hover {
     border-color: var(--td-brand-color);
-    box-shadow: 0 4px 12px rgba(7, 192, 95, 0.12);
+    box-shadow: 0 4px 12px rgba(21, 152, 168, 0.12);
   }
 
   &.uninitialized {
@@ -2265,11 +2265,11 @@ const handleUploadFinishedEvent = (event: Event) => {
 
   // 文档类型样式
   &.kb-type-document {
-    background: linear-gradient(135deg, var(--td-bg-color-container) 0%, rgba(7, 192, 95, 0.04) 100%);
+    background: linear-gradient(135deg, var(--td-bg-color-container) 0%, rgba(21, 152, 168, 0.04) 100%);
 
     &:hover {
       border-color: var(--td-brand-color);
-      background: linear-gradient(135deg, var(--td-bg-color-container) 0%, rgba(7, 192, 95, 0.08) 100%);
+      background: linear-gradient(135deg, var(--td-bg-color-container) 0%, rgba(21, 152, 168, 0.08) 100%);
     }
 
     // 右上角装饰
@@ -2280,7 +2280,7 @@ const handleUploadFinishedEvent = (event: Event) => {
       right: 0;
       width: 60px;
       height: 60px;
-      background: linear-gradient(135deg, rgba(7, 192, 95, 0.08) 0%, transparent 100%);
+      background: linear-gradient(135deg, rgba(21, 152, 168, 0.08) 0%, transparent 100%);
       border-radius: 0 12px 0 100%;
       pointer-events: none;
       z-index: 0;
@@ -2554,14 +2554,14 @@ const handleUploadFinishedEvent = (event: Event) => {
   transition: background 0.2s ease;
 
   &.type-document {
-    background: rgba(7, 192, 95, 0.08);
+    background: rgba(21, 152, 168, 0.08);
     color: var(--td-brand-color-active);
     width: auto;
     padding: 0 6px;
     gap: 3px;
 
     &:hover {
-      background: rgba(7, 192, 95, 0.12);
+      background: rgba(21, 152, 168, 0.12);
     }
 
     .badge-count {
@@ -2632,11 +2632,11 @@ const handleUploadFinishedEvent = (event: Event) => {
   }
 
   &.role-admin {
-    background: rgba(7, 192, 95, 0.1);
+    background: rgba(21, 152, 168, 0.1);
     color: var(--td-brand-color-active);
 
     &:hover {
-      background: rgba(7, 192, 95, 0.15);
+      background: rgba(21, 152, 168, 0.15);
     }
   }
 
@@ -2672,19 +2672,19 @@ const handleUploadFinishedEvent = (event: Event) => {
 @keyframes highlightFlash {
   0% {
     border-color: var(--td-brand-color);
-    box-shadow: 0 0 0 0 rgba(7, 192, 95, 0.4);
+    box-shadow: 0 0 0 0 rgba(21, 152, 168, 0.4);
     transform: scale(1);
   }
 
   50% {
     border-color: var(--td-brand-color);
-    box-shadow: 0 0 0 8px rgba(7, 192, 95, 0);
+    box-shadow: 0 0 0 8px rgba(21, 152, 168, 0);
     transform: scale(1.02);
   }
 
   100% {
     border-color: var(--td-brand-color);
-    box-shadow: 0 0 0 0 rgba(7, 192, 95, 0);
+    box-shadow: 0 0 0 0 rgba(21, 152, 168, 0);
     transform: scale(1);
   }
 }
@@ -2692,7 +2692,7 @@ const handleUploadFinishedEvent = (event: Event) => {
 .kb-card.highlight-flash {
   animation: highlightFlash 0.6s ease-in-out 3;
   border-color: var(--td-brand-color) !important;
-  box-shadow: 0 0 12px rgba(7, 192, 95, 0.3) !important;
+  box-shadow: 0 0 12px rgba(21, 152, 168, 0.3) !important;
 }
 
 .card-time {
@@ -2879,7 +2879,7 @@ const handleUploadFinishedEvent = (event: Event) => {
   }
 
   &:hover {
-    background: rgba(7, 192, 95, 0.08);
+    background: rgba(21, 152, 168, 0.08);
     color: var(--td-brand-color);
   }
 }

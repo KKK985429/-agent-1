@@ -2571,12 +2571,12 @@ const handleAddToKnowledge = (answerEvent: any) => {
   border-radius: 8px;
   background-color: var(--td-bg-color-container);
   border: .5px solid var(--td-component-stroke);
-  box-shadow: 0 2px 4px rgba(7, 192, 95, 0.08);
+  box-shadow: 0 2px 4px rgba(21, 152, 168, 0.08);
   color: var(--td-text-color-primary);
   transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 
   &:hover {
-    background-color: rgba(7, 192, 95, 0.04);
+    background-color: rgba(21, 152, 168, 0.04);
   }
 }
 
@@ -2852,7 +2852,7 @@ const handleAddToKnowledge = (answerEvent: any) => {
 
     &:hover {
       border-color: var(--td-brand-color);
-      box-shadow: 0 1px 4px rgba(7, 192, 95, 0.08);
+      box-shadow: 0 1px 4px rgba(21, 152, 168, 0.08);
     }
 
     &.action-error {
@@ -2862,8 +2862,8 @@ const handleAddToKnowledge = (answerEvent: any) => {
     &.action-pending {
       opacity: 1;
       box-shadow: none;
-      border-color: rgba(7, 192, 95, 0.15);
-      background: linear-gradient(120deg, rgba(7, 192, 95, 0.01), var(--td-bg-color-container));
+      border-color: rgba(21, 152, 168, 0.15);
+      background: linear-gradient(120deg, rgba(21, 152, 168, 0.01), var(--td-bg-color-container));
 
       &::after {
         content: '';
@@ -2872,8 +2872,8 @@ const handleAddToKnowledge = (answerEvent: any) => {
         background: linear-gradient(
           120deg,
           transparent 0%,
-          rgba(7, 192, 95, 0.06) 40%,
-          rgba(7, 192, 95, 0.08) 55%,
+          rgba(21, 152, 168, 0.06) 40%,
+          rgba(21, 152, 168, 0.08) 55%,
           transparent 85%
         );
         transform: translateX(-100%);
@@ -2938,7 +2938,7 @@ const handleAddToKnowledge = (answerEvent: any) => {
   transition: background-color 0.15s ease;
 
   &:hover {
-    background-color: rgba(7, 192, 95, 0.03);
+    background-color: rgba(21, 152, 168, 0.03);
   }
 
   &.no-results {
@@ -2999,7 +2999,7 @@ const handleAddToKnowledge = (answerEvent: any) => {
     padding: 0 6px;
     height: 18px;
     border-radius: 9px;
-    background: rgba(7, 192, 95, 0.10);
+    background: rgba(21, 152, 168, 0.10);
     color: var(--td-brand-color);
     font-size: 11px;
     font-weight: 500;
@@ -3104,11 +3104,11 @@ const handleAddToKnowledge = (answerEvent: any) => {
 @keyframes pulseBorder {
   0%, 100% {
     border-left-color: var(--td-brand-color);
-    box-shadow: 0 1px 3px rgba(7, 192, 95, 0.06);
+    box-shadow: 0 1px 3px rgba(21, 152, 168, 0.06);
   }
   50% {
     border-left-color: var(--td-brand-color);
-    box-shadow: 0 1px 4px rgba(7, 192, 95, 0.12);
+    box-shadow: 0 1px 4px rgba(21, 152, 168, 0.12);
   }
 }
 
@@ -3243,9 +3243,9 @@ const handleAddToKnowledge = (answerEvent: any) => {
   
   .plan-task-change-card {
     padding: 8px 12px;
-    background: linear-gradient(135deg, rgba(7, 192, 95, 0.05), rgba(7, 192, 95, 0.02));
+    background: linear-gradient(135deg, rgba(21, 152, 168, 0.05), rgba(21, 152, 168, 0.02));
     border-radius: 6px;
-    border: 1px solid rgba(7, 192, 95, 0.2);
+    border: 1px solid rgba(21, 152, 168, 0.2);
     font-size: 12px;
     color: var(--td-text-color-primary);
     

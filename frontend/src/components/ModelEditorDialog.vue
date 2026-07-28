@@ -2002,7 +2002,7 @@ const handleCancel = () => {
       top: 0;
       bottom: 0;
       width: var(--progress, 0%);
-      background: linear-gradient(90deg, rgba(7, 192, 95, 0.08), rgba(7, 192, 95, 0.15));
+      background: linear-gradient(90deg, rgba(21, 152, 168, 0.08), rgba(21, 152, 168, 0.15));
       transition: width 0.3s ease;
       z-index: 0;
       border-radius: 5px 0 0 5px;
@@ -2204,12 +2204,12 @@ const handleCancel = () => {
     transition: all 0.2s ease;
 
     &:hover {
-      background: rgba(7, 192, 95, 0.08) !important;
+      background: rgba(21, 152, 168, 0.08) !important;
       color: var(--td-brand-color-active) !important;
     }
 
     &:active {
-      background: rgba(7, 192, 95, 0.12) !important;
+      background: rgba(21, 152, 168, 0.12) !important;
     }
 
     .t-icon {

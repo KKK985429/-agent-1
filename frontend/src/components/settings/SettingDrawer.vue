@@ -205,7 +205,7 @@ const handleCancel = () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(7, 192, 95, 0.1);
+  background: rgba(21, 152, 168, 0.1);
   color: var(--td-brand-color);
   font-size: 16px;
   transition: background 0.2s ease;

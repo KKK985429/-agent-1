@@ -1295,7 +1295,7 @@
                     <h2>{{ $t('agentEditor.im.title') }}</h2>
                     <p class="section-description">
                       {{ $t('agentEditor.im.description') }}
-                      <a href="https://github.com/Tencent/WeKnora/blob/main/docs/IM%E9%9B%86%E6%88%90%E5%BC%80%E5%8F%91%E6%96%87%E6%A1%A3.md"
+                      <a href="https://github.com/KKK985429/-agent-1/blob/main/docs/IM%E9%9B%86%E6%88%90%E5%BC%80%E5%8F%91%E6%96%87%E6%A1%A3.md"
                         target="_blank" rel="noopener noreferrer" class="doc-link">
                         {{ $t('agentEditor.im.docLink') }}
                         <t-icon name="link" class="link-icon" />
@@ -3752,7 +3752,7 @@ const handleSave = async () => {
   }
 
   &.active {
-    background: rgba(7, 192, 95, 0.1);
+    background: rgba(21, 152, 168, 0.1);
     color: var(--td-brand-color);
     font-weight: 500;
   }
@@ -4541,14 +4541,14 @@ const handleSave = async () => {
 }
 
 .intent-toggle-group :deep(.intent-toggle-btn--active) {
-  background-color: rgba(7, 192, 95, 0.1);
+  background-color: rgba(21, 152, 168, 0.1);
   border-color: var(--td-brand-color);
   color: var(--td-brand-color);
   font-weight: 500;
 
   &:hover,
   &:focus-visible {
-    background-color: rgba(7, 192, 95, 0.14);
+    background-color: rgba(21, 152, 168, 0.14);
     border-color: var(--td-brand-color);
     color: var(--td-brand-color);
   }
@@ -4734,7 +4734,7 @@ const handleSave = async () => {
   flex-shrink: 0;
 
   &.normal {
-    background: linear-gradient(135deg, rgba(7, 192, 95, 0.15) 0%, rgba(7, 192, 95, 0.08) 100%);
+    background: linear-gradient(135deg, rgba(21, 152, 168, 0.15) 0%, rgba(21, 152, 168, 0.08) 100%);
     color: var(--td-brand-color-active);
   }
 
@@ -4798,7 +4798,7 @@ const handleSave = async () => {
 
   // Document KB
   &.doc-icon {
-    background: rgba(16, 185, 129, 0.1);
+    background: rgba(43, 170, 183, 0.1);
     color: var(--td-success-color);
   }
 
