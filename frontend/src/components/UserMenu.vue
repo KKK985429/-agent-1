@@ -644,7 +644,7 @@ const reopenGuide = () => {
 // 打开 GitHub
 const openGithub = () => {
   menuVisible.value = false
-  window.open('https://github.com/Tencent/WeKnora', '_blank')
+  window.open('https://github.com/KKK985429/-agent-1', '_blank')
 }
 
 // 注销
@@ -1324,7 +1324,7 @@ onUnmounted(() => {
     }
 
     &.is-current {
-      background: rgba(7, 192, 95, 0.08);
+      background: rgba(21, 152, 168, 0.08);
       cursor: default;
 
       .tenant-submenu-item-name {
@@ -1450,7 +1450,7 @@ onUnmounted(() => {
     transition: background 0.15s;
 
     &:hover {
-      background: rgba(7, 192, 95, 0.08);
+      background: rgba(21, 152, 168, 0.08);
     }
 
     .tenant-submenu-create-icon {

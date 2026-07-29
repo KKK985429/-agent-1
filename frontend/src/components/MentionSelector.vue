@@ -346,8 +346,8 @@ const scrollToItem = (index: number) => {
 }
 
 .mention-item.active {
-  background: var(--td-brand-color-light, #e9f8ec);
-  color: var(--td-brand-color, #07c05f);
+  background: var(--td-brand-color-light, #e8f7f8);
+  color: var(--td-brand-color, #1598a8);
 }
 
 .icon-wrap {
@@ -508,7 +508,7 @@ const scrollToItem = (index: number) => {
   font-size: var(--td-font-size-mark-small, 12px);
 }
 .mention-detail-content .detail-type-badge.doc {
-  background: rgba(16, 185, 129, 0.1);
+  background: rgba(43, 170, 183, 0.1);
   color: var(--td-success-color);
 }
 .mention-detail-content .detail-type-badge.faq {
@@ -598,7 +598,7 @@ const scrollToItem = (index: number) => {
   transition: color 0.2s, text-decoration-color 0.2s;
 }
 .mention-detail-content .detail-value.clickable:hover {
-  color: var(--td-brand-color, #07c05f);
-  text-decoration-color: var(--td-brand-color, #07c05f);
+  color: var(--td-brand-color, #1598a8);
+  text-decoration-color: var(--td-brand-color, #1598a8);
 }
 </style>

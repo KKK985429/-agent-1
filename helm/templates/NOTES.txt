@@ -28,7 +28,7 @@ WeKnora is accessible via Ingress:
 To access WeKnora, use port-forwarding:
 
   # Frontend (Web UI)
-  kubectl port-forward svc/frontend -n {{ .Release.Namespace }} 8080:80
+  kubectl port-forward svc/{{ .Values.serviceNames.frontend }} -n {{ .Release.Namespace }} 8080:80
 
   # Then open: http://localhost:8080
 
@@ -57,6 +57,10 @@ Components deployed:
 {{- end }}
 {{- if .Values.docreader.enabled }}
   - Document Reader ({{ include "weknora.docreader.image" . }})
+{{- end }}
+{{- if .Values.mcp.enabled }}
+  - MCP Server ({{ include "weknora.mcp.image" . }})
+    Cluster endpoint: http://{{ .Values.serviceNames.mcp }}:{{ .Values.mcp.service.port }}/mcp
 {{- end }}
 {{- if .Values.postgresql.enabled }}
   - PostgreSQL/ParadeDB ({{ include "weknora.postgresql.image" . }})
@@ -112,7 +116,7 @@ To use GraphRAG, set ENABLE_GRAPH_RAG=true in the app:
     --set neo4j.password=<your-secure-password>
 
 Access Neo4j Browser:
-  kubectl port-forward svc/neo4j -n {{ .Release.Namespace }} 7474:7474 7687:7687
+  kubectl port-forward svc/{{ .Values.serviceNames.neo4j }} -n {{ .Release.Namespace }} 7474:7474 7687:7687
   # Open: http://localhost:7474
 
 {{- end }}

@@ -148,6 +148,13 @@ Return the Neo4j image with tag.
 {{- end }}
 
 {{/*
+Return the MCP server image with tag.
+*/}}
+{{- define "weknora.mcp.image" -}}
+{{- printf "%s:%s" .Values.mcp.image.repository .Values.mcp.image.tag }}
+{{- end }}
+
+{{/*
 Create image pull secrets list.
 */}}
 {{- define "weknora.imagePullSecrets" -}}

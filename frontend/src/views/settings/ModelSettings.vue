@@ -7,7 +7,7 @@
       <div class="builtin-models-hint" role="note">
         <p class="builtin-hint-label">{{ $t('modelSettings.builtinModels.title') }}</p>
         <p class="builtin-hint-text">{{ $t('modelSettings.builtinModels.description') }}</p>
-        <a class="doc-link" href="https://github.com/Tencent/WeKnora/blob/main/docs/BUILTIN_MODELS.md" target="_blank"
+        <a class="doc-link" href="https://github.com/KKK985429/-agent-1/blob/main/docs/BUILTIN_MODELS.md" target="_blank"
           rel="noopener noreferrer">
           {{ $t('modelSettings.builtinModels.viewGuide') }}
           <t-icon name="link" class="link-icon" />

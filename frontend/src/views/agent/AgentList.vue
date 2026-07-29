@@ -1580,7 +1580,7 @@ defineExpose({
   display: inline-flex;
   align-items: center;
   padding: 2px 6px;
-  background: rgba(7, 192, 95, 0.1);
+  background: rgba(21, 152, 168, 0.1);
   border-radius: 4px;
   font-size: 12px;
   color: var(--td-brand-color);
@@ -1929,7 +1929,7 @@ defineExpose({
 
   &:hover {
     border-color: var(--td-brand-color);
-    box-shadow: 0 4px 12px rgba(7, 192, 95, 0.12);
+    box-shadow: 0 4px 12px rgba(21, 152, 168, 0.12);
   }
 
   .agent-favorite-star {
@@ -1969,19 +1969,19 @@ defineExpose({
 
   // 普通模式样式
   &.agent-mode-normal {
-    background: linear-gradient(135deg, var(--td-bg-color-container) 0%, rgba(7, 192, 95, 0.04) 100%);
+    background: linear-gradient(135deg, var(--td-bg-color-container) 0%, rgba(21, 152, 168, 0.04) 100%);
 
     &:hover {
       border-color: var(--td-brand-color);
-      background: linear-gradient(135deg, var(--td-bg-color-container) 0%, rgba(7, 192, 95, 0.08) 100%);
+      background: linear-gradient(135deg, var(--td-bg-color-container) 0%, rgba(21, 152, 168, 0.08) 100%);
     }
 
     .card-decoration {
-      color: rgba(7, 192, 95, 0.35);
+      color: rgba(21, 152, 168, 0.35);
     }
 
     &:hover .card-decoration {
-      color: rgba(7, 192, 95, 0.5);
+      color: rgba(21, 152, 168, 0.5);
     }
   }
 
@@ -2138,7 +2138,7 @@ defineExpose({
   }
 
   &.normal {
-    background: linear-gradient(135deg, rgba(7, 192, 95, 0.15) 0%, rgba(7, 192, 95, 0.08) 100%);
+    background: linear-gradient(135deg, rgba(21, 152, 168, 0.15) 0%, rgba(21, 152, 168, 0.08) 100%);
     color: var(--td-brand-color-active);
   }
 
@@ -2255,11 +2255,11 @@ defineExpose({
   transition: background 0.2s ease;
 
   &.mode-normal {
-    background: rgba(7, 192, 95, 0.08);
+    background: rgba(21, 152, 168, 0.08);
     color: var(--td-brand-color-active);
 
     &:hover {
-      background: rgba(7, 192, 95, 0.12);
+      background: rgba(21, 152, 168, 0.12);
     }
   }
 
@@ -2282,11 +2282,11 @@ defineExpose({
   }
 
   &.knowledge {
-    background: rgba(7, 192, 95, 0.08);
+    background: rgba(21, 152, 168, 0.08);
     color: var(--td-brand-color-active);
 
     &:hover {
-      background: rgba(7, 192, 95, 0.12);
+      background: rgba(21, 152, 168, 0.12);
     }
   }
 

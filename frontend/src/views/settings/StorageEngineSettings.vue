@@ -1230,7 +1230,7 @@ onMounted(loadAll)
 
   &--active {
     border-color: var(--td-brand-color);
-    background: var(--td-brand-color-1, rgba(7, 192, 95, 0.06));
+    background: var(--td-brand-color-1, rgba(21, 152, 168, 0.06));
   }
 }
 
@@ -1305,7 +1305,7 @@ onMounted(loadAll)
   color: #E55A00;
 }
 .engine-card--ks3 .engine-card__badge {
-  background: rgba(7, 192, 95, 0.12);
+  background: rgba(21, 152, 168, 0.12);
   color: #07A050;
 }
 .engine-card--obs .engine-card__badge {
@@ -1676,7 +1676,7 @@ onMounted(loadAll)
   color: #E55A00;
 }
 .storage-engine-drawer--ks3 .setting-drawer__header-icon {
-  background: rgba(7, 192, 95, 0.12);
+  background: rgba(21, 152, 168, 0.12);
   color: #07A050;
 }
 .storage-engine-drawer--obs .setting-drawer__header-icon {

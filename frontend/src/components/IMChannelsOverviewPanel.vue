@@ -430,7 +430,7 @@ function gotoAgentEditor(ch: IMChannelOverview) {
   }
 
   &.normal {
-    background: linear-gradient(135deg, rgba(7, 192, 95, 0.15) 0%, rgba(7, 192, 95, 0.08) 100%);
+    background: linear-gradient(135deg, rgba(21, 152, 168, 0.15) 0%, rgba(21, 152, 168, 0.08) 100%);
     color: var(--td-brand-color-active);
   }
 

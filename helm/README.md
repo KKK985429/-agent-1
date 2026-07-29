@@ -29,7 +29,8 @@ helm install weknora ./helm \
   --create-namespace \
   --set secrets.dbPassword=<your-db-password> \
   --set secrets.redisPassword=<your-redis-password> \
-  --set secrets.jwtSecret=<your-jwt-secret>
+  --set secrets.jwtSecret=<your-jwt-secret> \
+  --set secrets.weknoraApiKey=<tenant-api-key>
 ```
 
 ## Architecture
@@ -66,7 +67,8 @@ helm install weknora ./helm \
   --create-namespace \
   --set secrets.dbPassword=secure-password \
   --set secrets.redisPassword=secure-password \
-  --set secrets.jwtSecret=$(openssl rand -base64 32)
+  --set secrets.jwtSecret=$(openssl rand -base64 32) \
+  --set secrets.weknoraApiKey=<tenant-api-key>
 ```
 
 ### With Ingress
@@ -81,7 +83,8 @@ helm install weknora ./helm \
   --set ingress.tls.secretName=weknora-tls \
   --set secrets.dbPassword=secure-password \
   --set secrets.redisPassword=secure-password \
-  --set secrets.jwtSecret=$(openssl rand -base64 32)
+  --set secrets.jwtSecret=$(openssl rand -base64 32) \
+  --set secrets.weknoraApiKey=<tenant-api-key>
 ```
 
 ### With External LLM (Ollama)
@@ -96,7 +99,8 @@ helm install weknora ./helm \
   --set app.extraEnv[1].value=qwen2.5:7b \
   --set secrets.dbPassword=secure-password \
   --set secrets.redisPassword=secure-password \
-  --set secrets.jwtSecret=$(openssl rand -base64 32)
+  --set secrets.jwtSecret=$(openssl rand -base64 32) \
+  --set secrets.weknoraApiKey=<tenant-api-key>
 ```
 
 ### Production Installation
@@ -159,6 +163,21 @@ helm install weknora ./helm \
 | `serviceAccount.name` | ServiceAccount name | `""` |
 | `serviceAccount.annotations` | ServiceAccount annotations | `{}` |
 
+### Service Names
+
+Application-facing services use the `wisdom-*` prefix by default. PostgreSQL
+and Redis intentionally keep their existing short names.
+
+| Parameter | Default |
+|-----------|---------|
+| `serviceNames.app` | `wisdom-app` |
+| `serviceNames.frontend` | `wisdom-frontend` |
+| `serviceNames.docreader` | `wisdom-docreader` |
+| `serviceNames.postgres` | `postgres` |
+| `serviceNames.redis` | `redis` |
+| `serviceNames.neo4j` | `wisdom-neo4j` |
+| `serviceNames.mcp` | `wisdom-mcp` |
+
 ### App (Backend)
 
 | Parameter | Description | Default |
@@ -179,6 +198,18 @@ helm install weknora ./helm \
 | `frontend.replicaCount` | Number of replicas | `1` |
 | `frontend.image.repository` | Image repository | `wechatopenai/weknora-ui` |
 | `frontend.image.tag` | Image tag | `latest` |
+
+### MCP Server
+
+| Parameter | Description | Default |
+|-----------|-------------|---------|
+| `mcp.enabled` | Enable the Streamable HTTP MCP server | `true` |
+| `mcp.replicaCount` | Number of replicas | `1` |
+| `mcp.image.repository` | MCP image repository | Huawei SWR `weknora-mcp` |
+| `mcp.image.tag` | MCP image tag | `20260624-mcp1` |
+| `mcp.service.port` | ClusterIP service port | `8000` |
+
+The in-cluster endpoint is `http://wisdom-mcp:8000/mcp`.
 
 ### PostgreSQL (ParadeDB)
 
@@ -219,6 +250,7 @@ helm install weknora ./helm \
 | `secrets.dbName` | Database name | `weknora` |
 | `secrets.redisPassword` | Redis password | `""` (required) |
 | `secrets.jwtSecret` | JWT signing secret | `""` (required) |
+| `secrets.weknoraApiKey` | Tenant API key used by MCP | `""` (required when MCP is enabled) |
 | `secrets.existingSecret` | Use existing secret | `""` |
 
 ### Optional Components

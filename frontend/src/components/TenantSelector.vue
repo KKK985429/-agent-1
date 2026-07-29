@@ -412,7 +412,7 @@ onUnmounted(() => {
   &:focus-within {
     background: var(--td-bg-color-container);
     border-color: var(--td-brand-color);
-    box-shadow: 0 0 0 2px rgba(7, 192, 95, 0.1);
+    box-shadow: 0 0 0 2px rgba(21, 152, 168, 0.1);
   }
 }
 
@@ -490,7 +490,7 @@ onUnmounted(() => {
   }
 
   &.selected {
-    background: rgba(7, 192, 95, 0.08);
+    background: rgba(21, 152, 168, 0.08);
 
     .tenant-item-name {
       color: var(--td-brand-color);
@@ -586,7 +586,7 @@ onUnmounted(() => {
   transition: background 0.15s;
 
   &:hover {
-    background: rgba(7, 192, 95, 0.08);
+    background: rgba(21, 152, 168, 0.08);
   }
 }
 
