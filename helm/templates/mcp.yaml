@@ -56,6 +56,13 @@ spec:
                 secretKeyRef:
                   name: {{ include "weknora.secretName" . }}
                   key: WEKNORA_API_KEY
+                  optional: true
+            - name: WEKNORA_INTERNAL_MCP_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "weknora.secretName" . }}
+                  key: WEKNORA_INTERNAL_MCP_TOKEN
+                  optional: true
           livenessProbe:
             tcpSocket:
               port: http

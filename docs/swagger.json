@@ -7043,6 +7043,47 @@
                 }
             }
         },
+        "/mcp-query-stats": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    },
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "获取当前租户通过 MCP 执行混合检索的查询次数和命中次数",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "MCP服务"
+                ],
+                "summary": "获取租户 MCP 查询统计",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError"
+                        }
+                    }
+                }
+            }
+        },
         "/mcp-services": {
             "get": {
                 "security": [

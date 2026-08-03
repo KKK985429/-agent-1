@@ -22,6 +22,8 @@ from mcp.server import NotificationOptions, Server
 from mcp.server.models import InitializationOptions
 from requests.exceptions import RequestException
 
+from mcp_request_auth import APIKeyContextMiddleware, resolve_api_key
+
 # Set up logging configuration for the MCP server
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -29,6 +31,7 @@ logger = logging.getLogger(__name__)
 # Configuration - Load from environment variables with defaults
 WEKNORA_BASE_URL = os.getenv("WEKNORA_BASE_URL", "http://localhost:8080/api/v1")
 WEKNORA_API_KEY = os.getenv("WEKNORA_API_KEY", "")
+WEKNORA_INTERNAL_MCP_TOKEN = os.getenv("WEKNORA_INTERNAL_MCP_TOKEN", "")
 # Chat SSE read timeout in seconds. LLM responses can be slow; default 300s.
 try:
     WEKNORA_CHAT_TIMEOUT = int(os.getenv("WEKNORA_CHAT_TIMEOUT", "300"))
@@ -56,15 +59,11 @@ class WeKnoraClient:
         # Create a persistent session for connection pooling and performance
         self.session = requests.Session()
         self.session.verify = self.verify_ssl
-        # Set default headers for all requests
-        self.session.headers.update(
-            {
-                "X-API-Key": api_key,  # API key for authentication
-                "Content-Type": "application/json",  # Default content type
-            }
-        )
+        self.session.headers.update({"Content-Type": "application/json"})
 
-    def _request(self, method: str, endpoint: str, **kwargs) -> Dict[str, Any]:
+    def _request(
+        self, method: str, endpoint: str, *, mcp_source: bool = False, **kwargs
+    ) -> Dict[str, Any]:
         """Make a request to the WeKnora API
 
         Args:
@@ -76,6 +75,17 @@ class WeKnoraClient:
             JSON response as dictionary
         """
         url = f"{self.base_url}{endpoint}"
+        # A configured key is the deployment-level override. When it is empty,
+        # use only the key attached to the current MCP HTTP request. Keeping the
+        # fallback request-local prevents concurrent tenants from sharing keys.
+        api_key = resolve_api_key(self.api_key)
+
+        headers = dict(kwargs.pop("headers", {}) or {})
+        headers["X-API-Key"] = api_key
+        if mcp_source and WEKNORA_INTERNAL_MCP_TOKEN:
+            headers["X-WeKnora-Source"] = "mcp"
+            headers["X-WeKnora-Internal-Token"] = WEKNORA_INTERNAL_MCP_TOKEN
+        kwargs["headers"] = headers
         try:
             # Execute HTTP request with the specified method
             response = self.session.request(method, url, **kwargs)
@@ -193,7 +203,10 @@ class WeKnoraClient:
             **config,  # Include thresholds and match count
         }
         return self._request(
-            "GET", f"/knowledge-bases/{kb_id}/hybrid-search", json=data
+            "GET",
+            f"/knowledge-bases/{kb_id}/hybrid-search",
+            json=data,
+            mcp_source=True,
         )
 
     # Knowledge Management - Methods for creating and managing knowledge entries
@@ -1352,8 +1365,8 @@ async def run_sse(host: str, port: int):
 
     starlette_app = Starlette(
         routes=[
-            Mount("/sse", app=handle_sse),
-            Mount("/messages/", app=sse.handle_post_message),
+            Mount("/sse", app=APIKeyContextMiddleware(handle_sse)),
+            Mount("/messages/", app=APIKeyContextMiddleware(sse.handle_post_message)),
         ]
     )
 
@@ -1390,7 +1403,7 @@ async def run_http(host: str, port: int):
             yield
 
     starlette_app = Starlette(
-        routes=[Mount("/", app=session_manager.handle_request)],
+        routes=[Mount("/", app=APIKeyContextMiddleware(session_manager.handle_request))],
         lifespan=lifespan,
     )
 

@@ -152,6 +152,7 @@ func BuildContainer(container *dig.Container) *dig.Container {
 	must(container.Provide(neo4jRepo.NewNeo4jRepository))
 	must(container.Provide(memoryRepo.NewMemoryRepository))
 	must(container.Provide(repository.NewMCPServiceRepository))
+	must(container.Provide(repository.NewMCPQueryStatsRepository))
 	must(container.Provide(repository.NewMCPToolApprovalRepository))
 	must(container.Provide(repository.NewCustomAgentRepository))
 	must(container.Provide(repository.NewOrganizationRepository))
@@ -204,6 +205,7 @@ func BuildContainer(container *dig.Container) *dig.Container {
 
 	must(container.Provide(service.NewMessageService))
 	must(container.Provide(service.NewMCPServiceService))
+	must(container.Provide(service.NewMCPQueryStatsService))
 	must(container.Provide(service.NewMCPToolApprovalService))
 	must(container.Provide(service.NewCustomAgentService))
 	must(container.Provide(service.NewUserResourceFavoriteService))
@@ -327,6 +329,7 @@ func BuildContainer(container *dig.Container) *dig.Container {
 	must(container.Provide(handler.NewAuthHandler))
 	must(container.Provide(handler.NewSystemHandler))
 	must(container.Provide(handler.NewMCPServiceHandler))
+	must(container.Provide(handler.NewMCPQueryStatsHandler))
 	must(container.Provide(handler.NewMCPCredentialsHandler))
 	must(container.Provide(handler.NewModelCredentialsHandler))
 	must(container.Provide(handler.NewWebSearchProviderCredentialsHandler))

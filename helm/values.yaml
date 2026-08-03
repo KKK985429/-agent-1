@@ -457,11 +457,17 @@ secrets:
   # (the UI will display ciphertext like "enc:v1:..." instead of plaintext).
   systemAesKey: ""
 
-  # -- Tenant API key used by the MCP server to call the WeKnora API
+  # -- Optional fixed tenant API key used by MCP. When empty, MCP forwards the
+  # X-API-Key supplied on each Streamable HTTP request.
   weknoraApiKey: ""
 
+  # -- Shared secret used by app and MCP to authenticate MCP-origin statistics.
+  # Generated and retained automatically when this chart manages the Secret.
+  weknoraInternalMcpToken: ""
+
   # -- Use existing secret instead of creating one
-  # The secret must contain keys: DB_USER, DB_PASSWORD, DB_NAME, REDIS_USERNAME, REDIS_PASSWORD, JWT_SECRET, TENANT_AES_KEY, SYSTEM_AES_KEY, WEKNORA_API_KEY
+  # The secret must also contain WEKNORA_INTERNAL_MCP_TOKEN when MCP query
+  # statistics are enabled. WEKNORA_API_KEY is optional.
   existingSecret: ""
 
 # -----------------------------------------------------------------------------
