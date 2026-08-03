@@ -2,9 +2,11 @@ package handler
 
 import (
 	"context"
+	"crypto/subtle"
 	"encoding/json"
 	stderrors "errors"
 	"net/http"
+	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -32,6 +34,7 @@ type KnowledgeBaseHandler struct {
 	agentShareService  interfaces.AgentShareService
 	asynqClient        interfaces.TaskEnqueuer
 	vectorStoreService interfaces.VectorStoreService // enriches KB responses with bound store display
+	mcpQueryStats      interfaces.MCPQueryStatsService
 	// userService 仅在 list 类接口里用于批量回填 creator_name；
 	// 真正的鉴权由 RBAC 中间件 + Lookup 完成，这里不参与决策。
 	userService interfaces.UserService
@@ -46,6 +49,7 @@ func NewKnowledgeBaseHandler(
 	asynqClient interfaces.TaskEnqueuer,
 	vectorStoreService interfaces.VectorStoreService,
 	userService interfaces.UserService,
+	mcpQueryStats interfaces.MCPQueryStatsService,
 ) *KnowledgeBaseHandler {
 	return &KnowledgeBaseHandler{
 		service:            service,
@@ -55,7 +59,29 @@ func NewKnowledgeBaseHandler(
 		asynqClient:        asynqClient,
 		vectorStoreService: vectorStoreService,
 		userService:        userService,
+		mcpQueryStats:      mcpQueryStats,
 	}
+}
+
+const (
+	mcpSourceHeader        = "X-WeKnora-Source"
+	mcpInternalTokenHeader = "X-WeKnora-Internal-Token"
+	mcpInternalTokenEnv    = "WEKNORA_INTERNAL_MCP_TOKEN"
+)
+
+// isTrustedMCPRequest distinguishes MCP traffic from direct API calls. The
+// source marker alone is not trusted because any API client can set headers.
+func isTrustedMCPRequest(c *gin.Context) (bool, error) {
+	if !strings.EqualFold(strings.TrimSpace(c.GetHeader(mcpSourceHeader)), "mcp") {
+		return false, nil
+	}
+
+	expected := strings.TrimSpace(os.Getenv(mcpInternalTokenEnv))
+	provided := strings.TrimSpace(c.GetHeader(mcpInternalTokenHeader))
+	if expected == "" || provided == "" || subtle.ConstantTimeCompare([]byte(expected), []byte(provided)) != 1 {
+		return false, apperrors.NewUnauthorizedError("invalid MCP source credentials")
+	}
+	return true, nil
 }
 
 // buildKBResponse turns a knowledge base into a JSON-ready response shape,
@@ -302,6 +328,12 @@ func (h *KnowledgeBaseHandler) HybridSearch(c *gin.Context) {
 		return
 	}
 
+	isMCPRequest, err := isTrustedMCPRequest(c)
+	if err != nil {
+		c.Error(err)
+		return
+	}
+
 	logger.Infof(ctx, "Executing hybrid search, knowledge base ID: %s, query: %s, effectiveTenantID: %d",
 		secutils.SanitizeForLog(id), secutils.SanitizeForLog(req.QueryText), effectiveTenantID)
 
@@ -325,6 +357,13 @@ func (h *KnowledgeBaseHandler) HybridSearch(c *gin.Context) {
 
 	logger.Infof(ctx, "Hybrid search completed, knowledge base ID: %s, result count: %d",
 		secutils.SanitizeForLog(id), len(results))
+	if isMCPRequest && h.mcpQueryStats != nil {
+		callerTenantID := c.GetUint64(types.TenantIDContextKey.String())
+		if err := h.mcpQueryStats.RecordQuery(ctx, callerTenantID, len(results) > 0); err != nil {
+			// Usage accounting must not break a successful medical retrieval.
+			logger.ErrorWithFields(ctx, err, map[string]interface{}{"tenant_id": callerTenantID})
+		}
+	}
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
 		"data":    results,

@@ -36,7 +36,7 @@ export PATH="/opt/homebrew/bin:$PATH"
 export GOPROXY=https://goproxy.cn,direct
 
 cd "$PROJECT_DIR"
-if [ ! -f WeKnora ] || [ "$PROJECT_DIR/cmd/server" -nt "$PROJECT_DIR/WeKnora" ] || [ "$PROJECT_DIR/internal" -nt "$PROJECT_DIR/WeKnora" ]; then
+if [ ! -f WeKnora ] || find "$PROJECT_DIR/cmd" "$PROJECT_DIR/internal" -type f -name '*.go' -newer "$PROJECT_DIR/WeKnora" -print -quit | grep -q .; then
     echo "  → 源码有更新，重新编译..."
     go build -o WeKnora ./cmd/server
     echo "  ✅ 编译完成"
@@ -71,6 +71,7 @@ GIN_MODE=debug \
 TZ=Asia/Shanghai \
 WEKNORA_LANGUAGE=zh-CN \
 AUTO_RECOVER_DIRTY=true \
+	WEKNORA_INTERNAL_MCP_TOKEN=${WEKNORA_INTERNAL_MCP_TOKEN:-local-mcp-stats-test-token} \
 	DOCREADER_ADDR=localhost:50051 \
 	DOCREADER_TRANSPORT=grpc \
 SSRF_WHITELIST_EXTRA=172.16.1.250,searxng,qdrant,milvus,weaviate,doris-fe \

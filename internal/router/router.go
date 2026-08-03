@@ -65,6 +65,7 @@ type RouterParams struct {
 	InitializationHandler        *handler.InitializationHandler
 	SystemHandler                *handler.SystemHandler
 	MCPServiceHandler            *handler.MCPServiceHandler
+	MCPQueryStatsHandler         *handler.MCPQueryStatsHandler
 	MCPCredentialsHandler        *handler.MCPCredentialsHandler
 	WebSearchHandler             *handler.WebSearchHandler
 	WebSearchProviderHandler     *handler.WebSearchProviderHandler
@@ -93,9 +94,12 @@ func NewRouter(params RouterParams) *gin.Engine {
 
 	// CORS 中间件应放在最前面
 	r.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"*"},
-		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
-		AllowHeaders:     []string{"Origin", "Content-Type", "Accept", "Authorization", "X-API-Key", "X-Request-ID"},
+		AllowOrigins: []string{"*"},
+		AllowMethods: []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
+		AllowHeaders: []string{
+			"Origin", "Content-Type", "Accept", "Authorization", "X-API-Key", "X-Request-ID",
+			"X-WeKnora-Source", "X-WeKnora-Internal-Token",
+		},
 		ExposeHeaders:    []string{"Content-Length", "Access-Control-Allow-Origin"},
 		AllowCredentials: true,
 		MaxAge:           12 * time.Hour,
@@ -194,6 +198,7 @@ func NewRouter(params RouterParams) *gin.Engine {
 		RegisterSystemRoutes(v1, params.SystemHandler, rbacGuards)
 		RegisterSystemAdminRoutes(v1, params.SystemHandler, params.AuditLogHandler, rbacGuards)
 		RegisterMCPServiceRoutes(v1, params.MCPServiceHandler, params.MCPCredentialsHandler, rbacGuards)
+		RegisterMCPQueryStatsRoutes(v1, params.MCPQueryStatsHandler, rbacGuards)
 		RegisterWebSearchRoutes(v1, params.WebSearchHandler, rbacGuards)
 		RegisterWebSearchProviderRoutes(v1, params.WebSearchProviderHandler, params.WebSearchCredentialsHandler, rbacGuards)
 		RegisterVectorStoreRoutes(v1, params.VectorStoreHandler, rbacGuards)
@@ -207,7 +212,7 @@ func NewRouter(params RouterParams) *gin.Engine {
 		RegisterWikiPageRoutes(v1, params.WikiPageHandler, rbacGuards)
 		RegisterMedicalDepartmentRoutes(v1, params.MedicalDepartmentHandler, rbacGuards)
 		RegisterMedicalKBConfigRoutes(v1, params.MedicalKBConfigHandler, rbacGuards)
-	RegisterMedicalSearchRoutes(v1, params.MedicalSearchHandler, rbacGuards)
+		RegisterMedicalSearchRoutes(v1, params.MedicalSearchHandler, rbacGuards)
 		RegisterChunkerDebugRoutes(v1, rbacGuards)
 	}
 
@@ -849,6 +854,15 @@ func RegisterMCPServiceRoutes(
 		// kept at "anyone in the tenant" instead.
 		agentTool.POST("/tool-approvals/:pending_id", g.Viewer(), handler.ResolveToolApproval)
 	}
+}
+
+// RegisterMCPQueryStatsRoutes registers tenant-level MCP usage statistics.
+func RegisterMCPQueryStatsRoutes(
+	r *gin.RouterGroup,
+	handler *handler.MCPQueryStatsHandler,
+	g *rbacGuards,
+) {
+	r.GET("/mcp-query-stats", g.Admin(), handler.GetStats)
 }
 
 // RegisterWebSearchRoutes registers web search routes

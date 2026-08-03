@@ -9347,6 +9347,31 @@ paths:
       summary: Get wiki statistics
       tags:
       - Wiki
+  /mcp-query-stats:
+    get:
+      description: 获取当前租户通过 MCP 执行混合检索的查询次数和命中次数
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_Tencent_WeKnora_internal_errors.AppError'
+      security:
+      - Bearer: []
+      - ApiKeyAuth: []
+      summary: 获取租户 MCP 查询统计
+      tags:
+      - MCP服务
   /mcp-services:
     get:
       consumes:
